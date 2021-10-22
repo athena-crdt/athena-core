@@ -25,5 +25,5 @@ jobs:
           go test -v -count=1 -race -coverprofile=coverage.txt -covermode=atomic ./...
 
       - name: codecov
-        - run: |
+        run: |
           bash <(curl -s https://codecov.io/bash)
