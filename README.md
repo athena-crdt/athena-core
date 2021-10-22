@@ -1,5 +1,5 @@
-# CRDT Implementations for Athena
+# Athena Core Replicated JSON Data Type
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/athena-crdt/crdt-go/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/athena-crdt/athena-core/blob/main/LICENSE)
 
-This repository hosts the implementation of `treedoc`, an interleaving free replicated data structure as the core of Athena.
+This repository hosts the implementation of a `Conflict Free Replicated JSON Data Type`, the core of Athena.
