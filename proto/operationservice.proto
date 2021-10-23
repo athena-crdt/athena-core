@@ -1,0 +1,53 @@
+//  Copyright 2021, athena-crdt authors.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
+syntax = "proto3";
+
+package operations;
+option go_package = "./proto";
+
+enum Mutation {
+  ASSIGN = 0;
+  INSERT = 1;
+  DELETE = 2;
+}
+message ReceiveRequest {
+  // Node's latest lamport counter value.
+  uint64 counter_id = 1;
+}
+
+message Operation {
+  message Id {
+    string replica_id = 1;
+    uint64 counter_id = 2;
+  }
+
+  // Node info
+  Id operation_id = 1;
+  // Dependency array
+  repeated Id dependencies = 2;
+  // JsonPath cursor
+  string cursor = 3;
+  // Type of Operation
+  Mutation mutation = 4;
+}
+
+
+service OperationService {
+  // Unary RPC requesting committed operation of counter_id + 1
+  rpc Receive(ReceiveRequest) returns (Operation);
+
+  // Serverside streaming until both of their lamport counters matches.
+  rpc Watch (ReceiveRequest) returns (stream Operation);
+}
