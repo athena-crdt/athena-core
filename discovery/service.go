@@ -12,22 +12,24 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-package operations
+package discovery
 
 import (
 	"context"
+
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	pb "github.com/athena-crdt/athena-core/proto"
 )
 
 type Service struct {
-	pb.UnimplementedOperationServiceServer
+	pb.UnimplementedSwarmServiceServer
 }
 
-func (o *Service) Receive(ctx context.Context, stream *pb.ReceiveRequest) (*pb.Operation, error) {
+func (s *Service) Init(ctx context.Context, _ *emptypb.Empty) (*pb.InitResponse, error) {
 	panic("implement me")
 }
 
-func (o *Service) Watch(request *pb.ReceiveRequest, stream pb.OperationService_WatchServer) error {
+func (s *Service) Watch(_ *emptypb.Empty, stream pb.SwarmService_WatchServer) error {
 	panic("implement me")
 }

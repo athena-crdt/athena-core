@@ -12,7 +12,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-package operations
+package healthz
 
 import (
 	"context"
@@ -21,13 +21,14 @@ import (
 )
 
 type Service struct {
-	pb.UnimplementedOperationServiceServer
+	// Embed the unimplemented server
+	pb.UnimplementedHealthServiceServer
 }
 
-func (o *Service) Receive(ctx context.Context, stream *pb.ReceiveRequest) (*pb.Operation, error) {
-	panic("implement me")
+func (h *Service) Check(ctx context.Context, req *pb.HealthCheckRequest) (*pb.HealthCheckResponse, error) {
+	return &pb.HealthCheckResponse{Status: pb.HealthCheckResponse_SERVING}, nil
 }
 
-func (o *Service) Watch(request *pb.ReceiveRequest, stream pb.OperationService_WatchServer) error {
+func (h *Service) Watch(req *pb.HealthCheckRequest, stream pb.HealthService_WatchServer) error {
 	panic("implement me")
 }

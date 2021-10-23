@@ -1,3 +1,17 @@
+//  Copyright 2021, athena-crdt authors.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 package main
 
 import (
@@ -11,10 +25,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/athena-crdt/athena-core/healtz"
+	"github.com/athena-crdt/athena-core/discovery"
+	"github.com/athena-crdt/athena-core/healthz"
 	"github.com/athena-crdt/athena-core/operations"
 	pb "github.com/athena-crdt/athena-core/proto"
-	"github.com/athena-crdt/athena-core/swarm"
 )
 
 var port = flag.String("port", "50051", "grpc server port")
@@ -28,9 +42,9 @@ func main() {
 
 	s := grpc.NewServer()
 
-	pb.RegisterHealthServiceServer(s, &healtz.Service{})
+	pb.RegisterHealthServiceServer(s, &healthz.Service{})
 	pb.RegisterOperationServiceServer(s, &operations.Service{})
-	pb.RegisterSwarmServiceServer(s, &swarm.Service{})
+	pb.RegisterSwarmServiceServer(s, &discovery.Service{})
 
 	reflection.Register(s)
 	log.Println("Service Registration Done!!")
