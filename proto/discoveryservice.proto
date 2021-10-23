@@ -14,25 +14,24 @@
 
 syntax = "proto3";
 
-package health;
+package swarm;
 option go_package = "./proto";
+import "google/protobuf/empty.proto";
 
-message HealthCheckRequest {
-  string service = 1;
+message PeerInfo {
+  string ip = 1;
+  uint32 port = 2;
 }
 
-message HealthCheckResponse {
-  enum ServingStatus {
-    UNKNOWN = 0;
-    SERVING = 1;
-    NOT_SERVING = 2;
-    SERVICE_UNKNOWN = 3;  // Used only by the Watch method.
-  }
-  ServingStatus status = 1;
+message InitResponse {
+  repeated PeerInfo peers = 1;
 }
 
-service HealthService {
-  rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
+service SwarmService {
+  // Receive all peers info
+  rpc Init (google.protobuf.Empty) returns (InitResponse);
 
-  rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);
+  // Watch on latest peers! - Start with one node
+  // --- eventually it will form a network.
+  rpc Watch (google.protobuf.Empty) returns (stream PeerInfo);
 }

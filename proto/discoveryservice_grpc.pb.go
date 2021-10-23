@@ -36,7 +36,7 @@ func NewSwarmServiceClient(cc grpc.ClientConnInterface) SwarmServiceClient {
 
 func (c *swarmServiceClient) Init(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*InitResponse, error) {
 	out := new(InitResponse)
-	err := c.cc.Invoke(ctx, "/swarm.SwarmService/Init", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/discovery.SwarmService/Init", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (c *swarmServiceClient) Init(ctx context.Context, in *emptypb.Empty, opts .
 }
 
 func (c *swarmServiceClient) Watch(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (SwarmService_WatchClient, error) {
-	stream, err := c.cc.NewStream(ctx, &SwarmService_ServiceDesc.Streams[0], "/swarm.SwarmService/Watch", opts...)
+	stream, err := c.cc.NewStream(ctx, &SwarmService_ServiceDesc.Streams[0], "/discovery.SwarmService/Watch", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func _SwarmService_Init_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/swarm.SwarmService/Init",
+		FullMethod: "/discovery.SwarmService/Init",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SwarmServiceServer).Init(ctx, req.(*emptypb.Empty))
@@ -153,7 +153,7 @@ func (x *swarmServiceWatchServer) Send(m *PeerInfo) error {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var SwarmService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "swarm.SwarmService",
+	ServiceName: "discovery.SwarmService",
 	HandlerType: (*SwarmServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -168,5 +168,5 @@ var SwarmService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "proto/swarmservice.proto",
+	Metadata: "proto/discoveryservice.proto",
 }
