@@ -44,7 +44,7 @@ func main() {
 
 	pb.RegisterHealthServiceServer(s, &healthz.Service{})
 	pb.RegisterOperationServiceServer(s, &operations.Service{})
-	pb.RegisterSwarmServiceServer(s, &discovery.Service{})
+	pb.RegisterDiscoveryServiceServer(s, &discovery.Service{})
 
 	reflection.Register(s)
 	log.Println("Service Registration Done!!")

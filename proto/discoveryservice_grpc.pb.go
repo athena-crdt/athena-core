@@ -15,40 +15,40 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// SwarmServiceClient is the client API for SwarmService service.
+// DiscoveryServiceClient is the client API for DiscoveryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type SwarmServiceClient interface {
+type DiscoveryServiceClient interface {
 	// Receive all peers info
 	Init(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*InitResponse, error)
 	// Watch on latest peers! - Start with one node
 	// --- eventually it will form a network.
-	Watch(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (SwarmService_WatchClient, error)
+	Watch(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (DiscoveryService_WatchClient, error)
 }
 
-type swarmServiceClient struct {
+type discoveryServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewSwarmServiceClient(cc grpc.ClientConnInterface) SwarmServiceClient {
-	return &swarmServiceClient{cc}
+func NewDiscoveryServiceClient(cc grpc.ClientConnInterface) DiscoveryServiceClient {
+	return &discoveryServiceClient{cc}
 }
 
-func (c *swarmServiceClient) Init(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*InitResponse, error) {
+func (c *discoveryServiceClient) Init(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*InitResponse, error) {
 	out := new(InitResponse)
-	err := c.cc.Invoke(ctx, "/discovery.SwarmService/Init", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/swarm.DiscoveryService/Init", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *swarmServiceClient) Watch(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (SwarmService_WatchClient, error) {
-	stream, err := c.cc.NewStream(ctx, &SwarmService_ServiceDesc.Streams[0], "/discovery.SwarmService/Watch", opts...)
+func (c *discoveryServiceClient) Watch(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (DiscoveryService_WatchClient, error) {
+	stream, err := c.cc.NewStream(ctx, &DiscoveryService_ServiceDesc.Streams[0], "/swarm.DiscoveryService/Watch", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &swarmServiceWatchClient{stream}
+	x := &discoveryServiceWatchClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -58,16 +58,16 @@ func (c *swarmServiceClient) Watch(ctx context.Context, in *emptypb.Empty, opts 
 	return x, nil
 }
 
-type SwarmService_WatchClient interface {
+type DiscoveryService_WatchClient interface {
 	Recv() (*PeerInfo, error)
 	grpc.ClientStream
 }
 
-type swarmServiceWatchClient struct {
+type discoveryServiceWatchClient struct {
 	grpc.ClientStream
 }
 
-func (x *swarmServiceWatchClient) Recv() (*PeerInfo, error) {
+func (x *discoveryServiceWatchClient) Recv() (*PeerInfo, error) {
 	m := new(PeerInfo)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -75,96 +75,96 @@ func (x *swarmServiceWatchClient) Recv() (*PeerInfo, error) {
 	return m, nil
 }
 
-// SwarmServiceServer is the server API for SwarmService service.
-// All implementations must embed UnimplementedSwarmServiceServer
+// DiscoveryServiceServer is the server API for DiscoveryService service.
+// All implementations must embed UnimplementedDiscoveryServiceServer
 // for forward compatibility
-type SwarmServiceServer interface {
+type DiscoveryServiceServer interface {
 	// Receive all peers info
 	Init(context.Context, *emptypb.Empty) (*InitResponse, error)
 	// Watch on latest peers! - Start with one node
 	// --- eventually it will form a network.
-	Watch(*emptypb.Empty, SwarmService_WatchServer) error
-	mustEmbedUnimplementedSwarmServiceServer()
+	Watch(*emptypb.Empty, DiscoveryService_WatchServer) error
+	mustEmbedUnimplementedDiscoveryServiceServer()
 }
 
-// UnimplementedSwarmServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedSwarmServiceServer struct {
+// UnimplementedDiscoveryServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedDiscoveryServiceServer struct {
 }
 
-func (UnimplementedSwarmServiceServer) Init(context.Context, *emptypb.Empty) (*InitResponse, error) {
+func (UnimplementedDiscoveryServiceServer) Init(context.Context, *emptypb.Empty) (*InitResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Init not implemented")
 }
-func (UnimplementedSwarmServiceServer) Watch(*emptypb.Empty, SwarmService_WatchServer) error {
+func (UnimplementedDiscoveryServiceServer) Watch(*emptypb.Empty, DiscoveryService_WatchServer) error {
 	return status.Errorf(codes.Unimplemented, "method Watch not implemented")
 }
-func (UnimplementedSwarmServiceServer) mustEmbedUnimplementedSwarmServiceServer() {}
+func (UnimplementedDiscoveryServiceServer) mustEmbedUnimplementedDiscoveryServiceServer() {}
 
-// UnsafeSwarmServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to SwarmServiceServer will
+// UnsafeDiscoveryServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DiscoveryServiceServer will
 // result in compilation errors.
-type UnsafeSwarmServiceServer interface {
-	mustEmbedUnimplementedSwarmServiceServer()
+type UnsafeDiscoveryServiceServer interface {
+	mustEmbedUnimplementedDiscoveryServiceServer()
 }
 
-func RegisterSwarmServiceServer(s grpc.ServiceRegistrar, srv SwarmServiceServer) {
-	s.RegisterService(&SwarmService_ServiceDesc, srv)
+func RegisterDiscoveryServiceServer(s grpc.ServiceRegistrar, srv DiscoveryServiceServer) {
+	s.RegisterService(&DiscoveryService_ServiceDesc, srv)
 }
 
-func _SwarmService_Init_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _DiscoveryService_Init_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SwarmServiceServer).Init(ctx, in)
+		return srv.(DiscoveryServiceServer).Init(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/discovery.SwarmService/Init",
+		FullMethod: "/swarm.DiscoveryService/Init",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SwarmServiceServer).Init(ctx, req.(*emptypb.Empty))
+		return srv.(DiscoveryServiceServer).Init(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SwarmService_Watch_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _DiscoveryService_Watch_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(emptypb.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(SwarmServiceServer).Watch(m, &swarmServiceWatchServer{stream})
+	return srv.(DiscoveryServiceServer).Watch(m, &discoveryServiceWatchServer{stream})
 }
 
-type SwarmService_WatchServer interface {
+type DiscoveryService_WatchServer interface {
 	Send(*PeerInfo) error
 	grpc.ServerStream
 }
 
-type swarmServiceWatchServer struct {
+type discoveryServiceWatchServer struct {
 	grpc.ServerStream
 }
 
-func (x *swarmServiceWatchServer) Send(m *PeerInfo) error {
+func (x *discoveryServiceWatchServer) Send(m *PeerInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-// SwarmService_ServiceDesc is the grpc.ServiceDesc for SwarmService service.
+// DiscoveryService_ServiceDesc is the grpc.ServiceDesc for DiscoveryService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var SwarmService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "discovery.SwarmService",
-	HandlerType: (*SwarmServiceServer)(nil),
+var DiscoveryService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "swarm.DiscoveryService",
+	HandlerType: (*DiscoveryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Init",
-			Handler:    _SwarmService_Init_Handler,
+			Handler:    _DiscoveryService_Init_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Watch",
-			Handler:       _SwarmService_Watch_Handler,
+			Handler:       _DiscoveryService_Watch_Handler,
 			ServerStreams: true,
 		},
 	},

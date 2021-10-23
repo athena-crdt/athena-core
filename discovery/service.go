@@ -23,13 +23,13 @@ import (
 )
 
 type Service struct {
-	pb.UnimplementedSwarmServiceServer
+	pb.UnimplementedDiscoveryServiceServer
 }
 
 func (s *Service) Init(ctx context.Context, _ *emptypb.Empty) (*pb.InitResponse, error) {
 	panic("implement me")
 }
 
-func (s *Service) Watch(_ *emptypb.Empty, stream pb.SwarmService_WatchServer) error {
+func (s *Service) Watch(_ *emptypb.Empty, stream pb.DiscoveryService_WatchServer) error {
 	panic("implement me")
 }

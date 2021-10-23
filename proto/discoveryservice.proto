@@ -27,7 +27,7 @@ message InitResponse {
   repeated PeerInfo peers = 1;
 }
 
-service SwarmService {
+service DiscoveryService {
   // Receive all peers info
   rpc Init (google.protobuf.Empty) returns (InitResponse);
 
