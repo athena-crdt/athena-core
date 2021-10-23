@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package swarm;
+option go_package = "./proto";
+import "google/protobuf/empty.proto";
+
+message PeerInfo {
+  string ip = 1;
+  string port = 2;
+}
+
+message InitResponse {
+  repeated PeerInfo peers = 1;
+}
+
+service SwarmService {
+  // Receive all peers info
+  rpc Init (google.protobuf.Empty) returns (InitResponse);
+
+  // Watch on latest peers! - Start with one node
+  // --- eventually it will form a network.
+  rpc Watch (google.protobuf.Empty) returns (stream PeerInfo);
+}

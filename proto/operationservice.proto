@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package operations;
+option go_package = "./proto";
+
+enum Mutation {
+  ASSIGN = 0;
+  INSERT = 1;
+  DELETE = 2;
+}
+message ReceiveRequest {
+  // Node's latest lamport counter value.
+  uint64 counter_id = 1;
+}
+
+message Operation {
+  message Id {
+    string replica_id = 1;
+    uint64 counter_id = 2;
+  }
+
+  // Node info
+  Id operation_id = 1;
+  // Dependency array
+  repeated Id dependencies = 2;
+  // JsonPath cursor
+  string cursor = 3;
+  // Type of Operation
+  Mutation mutation = 4;
+}
+
+
+service OperationService {
+  // Unary RPC requesting committed operation of counter_id + 1
+  rpc Receive(ReceiveRequest) returns (Operation);
+
+  // Serverside streaming until both of their lamport counters matches.
+  rpc Watch (ReceiveRequest) returns (stream Operation);
+}
