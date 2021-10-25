@@ -27,7 +27,6 @@ func TestClock(t *testing.T) {
 	assert.Equal(uint64(0), clock.GetTime(), "Invalid initialisation of clock")
 	assert.Equal(uint64(1), clock.Increment(), "Invalid time")
 	assert.Equal(uint64(1), clock.GetTime(), "Invalid time")
-
 	for _, test := range []struct {
 		arg, expected uint64
 	}{
