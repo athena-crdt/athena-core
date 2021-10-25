@@ -27,15 +27,15 @@ func TestNewJsonNode(t *testing.T) {
 	listNode := NewJsonNode("2", ListT)
 	regNode := NewJsonNode("3", RegT)
 
-	assert.Equal(mapNode.id, "1")
-	assert.Equal(mapNode.tombstone, false)
-	assert.Equal(mapNode.nodeType, MapT)
-	assert.Equal(listNode.id, "2")
-	assert.Equal(listNode.tombstone, false)
-	assert.Equal(listNode.nodeType, ListT)
-	assert.Equal(regNode.id, "3")
-	assert.Equal(regNode.tombstone, false)
-	assert.Equal(regNode.nodeType, RegT)
+	assert.Equal(mapNode.Id, "1")
+	assert.Equal(mapNode.Tombstone, false)
+	assert.Equal(mapNode.NodeType, MapT)
+	assert.Equal(listNode.Id, "2")
+	assert.Equal(listNode.Tombstone, false)
+	assert.Equal(listNode.NodeType, ListT)
+	assert.Equal(regNode.Id, "3")
+	assert.Equal(regNode.Tombstone, false)
+	assert.Equal(regNode.NodeType, RegT)
 }
 
 func TestAssignInMapNodes(t *testing.T) {
@@ -51,10 +51,10 @@ func TestAssignInMapNodes(t *testing.T) {
 	root.Assign(child2)
 	root.Assign(child3)
 
-	assert.Equal(len(root.children), 3)
-	assert.Equal(root.children[child1.id], child1)
-	assert.Equal(root.children[child2.id], child2)
-	assert.Equal(root.children[child3.id], child3)
+	assert.Equal(len(root.Children), 3)
+	assert.Equal(root.Children[child1.Id], child1)
+	assert.Equal(root.Children[child2.Id], child2)
+	assert.Equal(root.Children[child3.Id], child3)
 }
 
 func TestAssignAndInsertInListNodes(t *testing.T) {
@@ -67,39 +67,39 @@ func TestAssignAndInsertInListNodes(t *testing.T) {
 	child4 := NewJsonNode("reg3", RegT)
 
 	root.InsertAtHead(child1)
-	assert.Equal(len(root.children), 1)
-	root.InsertAfter(child2.id, child1)
-	assert.Equal(len(root.children), 1)
-	root.InsertAfter(child1.id, child3)
-	root.InsertAfter(child1.id, child2)
-	assert.Equal(len(root.children), 3)
-	assert.Equal(root.children[child1.id].listIndex, 0)
-	assert.Equal(root.children[child2.id].listIndex, 1)
-	assert.Equal(root.children[child3.id].listIndex, 2)
+	assert.Equal(len(root.Children), 1)
+	root.InsertAfter(child2.Id, child1)
+	assert.Equal(len(root.Children), 1)
+	root.InsertAfter(child1.Id, child3)
+	root.InsertAfter(child1.Id, child2)
+	assert.Equal(len(root.Children), 3)
+	assert.Equal(root.Children[child1.Id].ListIndex, 0)
+	assert.Equal(root.Children[child2.Id].ListIndex, 1)
+	assert.Equal(root.Children[child3.Id].ListIndex, 2)
 	root.Assign(child4)
-	assert.Equal(len(root.children), 3)
+	assert.Equal(len(root.Children), 3)
 }
 
 func TestSetValue(t *testing.T) {
 	assert := assert.New(t)
 
 	reg := NewJsonNode("reg", RegT)
-	assert.Equal(reg.value, nil)
+	assert.Equal(reg.Value, nil)
 
 	reg.SetValue(1)
-	assert.Equal(reg.value, 1)
+	assert.Equal(reg.Value, 1)
 
 	reg.SetValue("hi")
-	assert.Equal(reg.value, "hi")
+	assert.Equal(reg.Value, "hi")
 
 	reg.SetValue(false)
-	assert.Equal(reg.value, false)
+	assert.Equal(reg.Value, false)
 
 	reg.SetValue(3.14)
-	assert.Equal(reg.value, 3.14)
+	assert.Equal(reg.Value, 3.14)
 
 	reg.SetValue(nil)
-	assert.Equal(reg.value, nil)
+	assert.Equal(reg.Value, nil)
 }
 
 func TestDeleteInNode(t *testing.T) {
@@ -109,7 +109,7 @@ func TestDeleteInNode(t *testing.T) {
 	node.Assign(NewJsonNode("child1", ListT))
 
 	node.Delete("child1")
-	assert.True(node.children["child1"].tombstone)
+	assert.True(node.Children["child1"].Tombstone)
 }
 
 func TestNodeClone(t *testing.T) {
@@ -123,4 +123,26 @@ func TestNodeClone(t *testing.T) {
 	node = nil
 
 	assert.Equal(cpy1, cpy2)
+}
+
+func TestSerialization(t *testing.T) {
+	assert := assert.New(t)
+
+	node := NewJsonNode("root", MapT)
+	child := NewJsonNode("child", MapT)
+	node.Assign(child)
+	child.Assign(NewJsonNode("child1", RegT))
+	child.Children["child1"].SetValue("hello")
+	child.Assign(NewJsonNode("child2", RegT))
+	child.Children["child2"].SetValue(1)
+	child.Assign(NewJsonNode("child3", RegT))
+	child.Children["child3"].SetValue(false)
+
+	buf := node.Serialize()
+	ret := DeserializeJsonNodeBuffer(buf)
+
+	assert.Equal(ret, node)
+	assert.Equal(ret.Children["child"].Children["child1"].Value, "hello")
+	assert.Equal(ret.Children["child"].Children["child2"].Value, 1)
+	assert.Equal(ret.Children["child"].Children["child3"].Value, false)
 }

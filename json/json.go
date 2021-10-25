@@ -14,6 +14,12 @@
 
 package json
 
+import (
+	"bytes"
+	"encoding/gob"
+	"log"
+)
+
 type JsonNodeType int
 
 /**
@@ -34,12 +40,12 @@ const (
  * todo: add field lastModified LamportTimestamp
  */
 type JsonNode struct {
-	id        string
-	children  map[string]*JsonNode // invalid for nodeType RegT
-	nodeType  JsonNodeType
-	value     interface{} // valid only for nodeType RegT, value can be int, float64, string, bool, nil
-	listIndex int         // valid only for list elems
-	tombstone bool
+	Id        string
+	Children  map[string]*JsonNode // invalid for nodeType RegT
+	NodeType  JsonNodeType
+	Value     interface{} // valid only for nodeType RegT, value can be int, float64, string, bool, nil
+	ListIndex int         // valid only for list elems
+	Tombstone bool
 }
 
 /**
@@ -71,69 +77,74 @@ func NewJsonNode(id string, nodeType JsonNodeType) *JsonNode {
  * Assign to child.id for MapT or List node
  */
 func (node *JsonNode) Assign(child *JsonNode) {
-	if node.nodeType == RegT {
+	if node.NodeType == RegT {
+		log.Panicln("Cannot Assign() to JsonNode with NodeType RegT")
 		return
 	}
 	// if nodeType is ListT the id should already exist and have same index, use insertAfter to insert new Node for listT
-	if node.nodeType == ListT {
-		listElem, ok := node.children[child.id]
+	if node.NodeType == ListT {
+		listElem, ok := node.Children[child.Id]
 		if !ok {
+			log.Panicln("Cannot Assign() to new Node to JsonNode with NodeType ListT, use InsertAfter or InsertAtHead")
 			return
-		} else if listElem.listIndex != child.listIndex || listElem.tombstone {
+		} else if listElem.ListIndex != child.ListIndex || listElem.Tombstone {
+			log.Panicln("Cannot Assign() to new Node to JsonNode with NodeType ListT with invalid ListIndex")
 			return
 		}
 	}
-	node.children[child.id] = child
+	node.Children[child.Id] = child
 }
 
 /**
  * Insert at head in ListT node
  */
 func (node *JsonNode) InsertAtHead(child *JsonNode) {
-	if node.nodeType != ListT {
+	if node.NodeType != ListT {
+		log.Panicln("InsertAtHead() works only for JsonNode with NodeType ListT")
 		return
 	}
 
 	// child.id already present
-	_, present := node.children[child.id]
+	_, present := node.Children[child.Id]
 	if present {
 		return
 	}
 
 	// child should have listIndex as 0
-	child.listIndex = 0
+	child.ListIndex = 0
 
 	// increment all other existing elems
-	for _id := range node.children {
-		node.children[_id].listIndex += 1
+	for _id := range node.Children {
+		node.Children[_id].ListIndex += 1
 	}
 
-	node.children[child.id] = child
+	node.Children[child.Id] = child
 }
 
 /**
  * Insert after given _id in ListT node
  */
 func (node *JsonNode) InsertAfter(_id string, child *JsonNode) {
-	if node.nodeType != ListT {
+	if node.NodeType != ListT {
+		log.Panicln("InsertAfter() works only for JsonNode with NodeType ListT")
 		return
 	}
 	// child.id already present
-	_, present := node.children[child.id]
+	_, present := node.Children[child.Id]
 	if present {
 		return
 	}
 
-	markedElem, ok := node.children[_id]
+	markedElem, ok := node.Children[_id]
 	if ok {
 		// increment listIndex for all later elements
-		for _id := range node.children {
-			if node.children[_id].listIndex > markedElem.listIndex {
-				node.children[_id].listIndex += 1
+		for _id := range node.Children {
+			if node.Children[_id].ListIndex > markedElem.ListIndex {
+				node.Children[_id].ListIndex += 1
 			}
 		}
-		child.listIndex = markedElem.listIndex + 1
-		node.children[child.id] = child
+		child.ListIndex = markedElem.ListIndex + 1
+		node.Children[child.Id] = child
 	}
 }
 
@@ -142,20 +153,21 @@ func (node *JsonNode) InsertAfter(_id string, child *JsonNode) {
  * args supported nil, string, boolean, int and float64
  */
 func (node *JsonNode) SetValue(value interface{}) {
-	if node.nodeType != RegT {
+	if node.NodeType != RegT {
+		log.Panicln("Cannot SetValue() to JsonNode with NodeType ListT or MapT")
 		return
 	}
 	switch value.(type) {
 	case int:
-		node.value = value
+		node.Value = value
 	case float64:
-		node.value = value
+		node.Value = value
 	case string:
-		node.value = value
+		node.Value = value
 	case bool:
-		node.value = value
+		node.Value = value
 	case nil:
-		node.value = value
+		node.Value = value
 	default:
 	}
 }
@@ -164,18 +176,19 @@ func (node *JsonNode) SetValue(value interface{}) {
  * Delete a id from MapT or ListT node
  */
 func (node *JsonNode) Delete(id string) {
-	if node.nodeType == RegT {
+	if node.NodeType == RegT {
+		log.Panicln("Cannot Delete() child from JsonNode with NodeType RegT")
 		return
 	}
-	elem, ok := node.children[id]
+	elem, ok := node.Children[id]
 	if ok {
-		node.children[id].tombstone = true
+		node.Children[id].Tombstone = true
 
 		// if nodeType is listT decrement later indices
-		if node.nodeType == ListT {
-			for _id := range node.children {
-				if node.children[_id].listIndex > elem.listIndex {
-					node.children[_id].listIndex -= 1
+		if node.NodeType == ListT {
+			for _id := range node.Children {
+				if node.Children[_id].ListIndex > elem.ListIndex {
+					node.Children[_id].ListIndex -= 1
 				}
 			}
 		}
@@ -188,16 +201,40 @@ func (node *JsonNode) Delete(id string) {
 func (node *JsonNode) Clone() *JsonNode {
 	// explicitly need to copy the children map
 	childrenClone := make(map[string]*JsonNode)
-	for k, v := range node.children {
+	for k, v := range node.Children {
 		childrenClone[k] = v
 	}
 	nodeClone := JsonNode{
-		node.id,
+		node.Id,
 		childrenClone,
-		node.nodeType,
-		node.value,
-		node.listIndex,
-		node.tombstone,
+		node.NodeType,
+		node.Value,
+		node.ListIndex,
+		node.Tombstone,
 	}
 	return &nodeClone
+}
+
+/**
+ * Recusively flatten the json tree and return a byte array
+ */
+func (node *JsonNode) Serialize() []byte {
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+	if err := enc.Encode(node); err != nil {
+		log.Fatal(err)
+	}
+	return buf.Bytes()
+}
+
+/**
+ * Return *JsonNode from binary buffer
+ */
+func DeserializeJsonNodeBuffer(buf []byte) *JsonNode {
+	dec := gob.NewDecoder(bytes.NewBuffer(buf))
+	node := new(JsonNode)
+	if err := dec.Decode(node); err != nil {
+		log.Fatal(err)
+	}
+	return node
 }
