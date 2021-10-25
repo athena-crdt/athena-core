@@ -1,7 +1,7 @@
-package lamport
+package operations
 
 import (
-	"sync/atomic"
+"sync/atomic"
 )
 
 type Clock struct {
@@ -15,12 +15,12 @@ func (clock *Clock) Increment() uint64 {
 func (clock *Clock) CompareAndUpdate(value uint64) {
 	for {
 		cur := atomic.LoadUint64(&clock.counter)
-		if value >= cur {
-			if atomic.CompareAndSwapUint64(&clock.counter, cur, value+1) {
-				break
-			}
-		} else {
+
+		if value < cur {
 			return
+		}
+		if atomic.CompareAndSwapUint64(&clock.counter, cur, value+1) {
+			break
 		}
 	}
 }
