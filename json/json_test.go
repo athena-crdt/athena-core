@@ -65,6 +65,7 @@ func TestAssignAndInsertInListNodes(t *testing.T) {
 	child2 := NewJsonNode("reg2", RegT)
 	child3 := NewJsonNode("reg3", RegT)
 	child4 := NewJsonNode("reg3", RegT)
+	child4.ListIndex = 2
 
 	root.InsertAtHead(child1)
 	assert.Equal(len(root.Children), 1)
