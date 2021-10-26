@@ -15,9 +15,9 @@
 package lamport
 
 import (
-	"github.com/stretchr/testify/assert"
-
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestClock(t *testing.T) {
