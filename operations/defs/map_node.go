@@ -14,6 +14,8 @@
 
 package defs
 
+import "github.com/pkg/errors"
+
 type MapNode struct {
 	*baseNode
 }
@@ -27,8 +29,9 @@ func (m *MapNode) Delete(id NodeId) error {
 	child, present := m.Children()[id]
 	if present && !child.IsTombStone() {
 		child.MarkTombstone()
+		return nil
 	}
-	return nil
+	return errors.Errorf("Cannot delete id %v from mapNode of id %v", id, m.Id())
 }
 
 func (m *MapNode) DeepClone() (Node, error) {

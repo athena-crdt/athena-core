@@ -65,18 +65,19 @@ func (l *ListNode) InsertAfter(id NodeId, child Node) error {
 	}
 
 	markedElem, ok := l.Children()[id]
-	if ok {
-		// increment listIndex for all later elements
-		for id := range l.Children() {
-			if l.Children()[id].ListIndex() > markedElem.ListIndex() {
-				l.Children()[id].SetListIndex(l.Children()[id].ListIndex() + 1)
-			}
-		}
-		child.SetListIndex(markedElem.ListIndex() + 1)
-		l.Children()[child.Id()] = child
-		return nil
+	if !ok {
+		return errors.Errorf("invalid list insertion, child of id %v doesn't exists for listNode of id %v", id, l.id)
 	}
-	return errors.Errorf("invalid list insertion, child of id %v doesn't exists for listNode of id %v", id, l.id)
+
+	// increment listIndex for all later elements
+	for id := range l.Children() {
+		if l.Children()[id].ListIndex() > markedElem.ListIndex() {
+			l.Children()[id].SetListIndex(l.Children()[id].ListIndex() + 1)
+		}
+	}
+	child.SetListIndex(markedElem.ListIndex() + 1)
+	l.Children()[child.Id()] = child
+	return nil
 }
 
 func (l *ListNode) Delete(id NodeId) error {
@@ -89,8 +90,9 @@ func (l *ListNode) Delete(id NodeId) error {
 				l.Children()[id].SetListIndex(l.Children()[id].ListIndex() - 1)
 			}
 		}
+		return nil
 	}
-	return nil
+	return errors.Errorf("Cannot delete id %v from listNode of id %v", id, l.Id())
 }
 
 func (l *ListNode) DeepClone() (Node, error) {
