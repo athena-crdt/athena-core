@@ -12,34 +12,30 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-package utils
+package defs
 
-import (
-	"github.com/pkg/errors"
+import "github.com/pkg/errors"
 
-	"github.com/athena-crdt/athena-core/operations/defs"
-)
-
-// DeepCopy creates a deep copy of the json subtree pointed by the current node
-func DeepCopy(n defs.Node) (defs.Node, error) {
-	var node defs.Node
+// deepCopy creates a deep copy of the json subtree pointed by the current node
+func deepCopy(n Node) (Node, error) {
+	var node Node
 	switch v := n.(type) {
-	case *defs.MapNode:
-		m := defs.NewMapNode(v.Id())
+	case *MapNode:
+		m := NewMapNode(v.Id())
 		node = m
-	case *defs.ListNode:
-		l := defs.NewListNode(v.Id())
+	case *ListNode:
+		l := NewListNode(v.Id())
 		l.SetIndex(v.Index())
 		node = l
-	case *defs.RegisterNode:
-		return defs.NewRegisterNode(v.Id(), v.Value()), nil
+	case *RegisterNode:
+		return NewRegisterNode(v.Id(), v.Value()), nil
 	default:
 		return nil, errors.Errorf("malicious entry of type %T inside json tree", n)
 	}
 
 	// recursive deepcopy
 	for key, val := range n.Child() {
-		deepVal, err := DeepCopy(val)
+		deepVal, err := deepCopy(val)
 		if err != nil {
 			return nil, err
 		}

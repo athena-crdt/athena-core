@@ -14,8 +14,6 @@
 
 package defs
 
-import "github.com/athena-crdt/athena-core/utils"
-
 type MapNode struct {
 	*baseNode
 }
@@ -26,7 +24,7 @@ func NewMapNode(id ID) *MapNode {
 }
 
 func (m *MapNode) Clone() (Node, error) {
-	return utils.DeepCopy(m)
+	return deepCopy(m)
 }
 
 func (m *MapNode) Serialize() error {

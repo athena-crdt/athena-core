@@ -14,8 +14,6 @@
 
 package defs
 
-import "github.com/athena-crdt/athena-core/utils"
-
 type ListNode struct {
 	*baseNode
 	listIndex uint64
@@ -29,7 +27,7 @@ func NewListNode(id ID) *ListNode {
 }
 
 func (l *ListNode) Clone() (Node, error) {
-	return utils.DeepCopy(l)
+	return deepCopy(l)
 }
 
 // Index returns the current index of ListNode.
