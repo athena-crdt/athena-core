@@ -85,7 +85,7 @@ func (b *baseNode) Id() Id {
 }
 
 func (b *baseNode) SetId(id Id) error {
-	if id != "" {
+	if b.id != "" {
 		return errors.Errorf("id %v is already set for node", b.id)
 	}
 	b.id = id
@@ -142,7 +142,7 @@ func (b *baseNode) FetchChild(idList []Id) (Node, error) {
 		switch c.(type) {
 		case *RegisterNode:
 			if i != len(idList)-1 {
-				return nil, errors.Errorf("expected empty idList when a RegisterNode of id %v is reached", c.Id())
+				return nil, errors.Errorf("expected empty id[] when a RegisterNode of id %v is reached", c.Id())
 			}
 		default:
 		}
