@@ -31,7 +31,7 @@ type (
 
 		// IsTombStone returns if the given node has already been marked as a tombstone.
 		IsTombStone() bool
-		// Delele marks the current node as a tombstone.
+		// MarkTombstone marks the current node as a tombstone.
 		MarkTombstone() error
 
 		// Serialize and Deserialize aids to perform serialization and deserialization
