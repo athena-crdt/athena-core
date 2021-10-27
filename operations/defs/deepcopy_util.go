@@ -17,7 +17,8 @@ package defs
 import "github.com/pkg/errors"
 
 // deepCopy creates a deep copy of the json subtree pointed by the current node
-func deepCopy(n Node) (Node, error) {
+// if deep is false only the subtree child references are copied else a recursive deep copy is made
+func deepCopy(n Node, deep bool) (Node, error) {
 	var node Node
 	switch v := n.(type) {
 	case *MapNode:
@@ -25,7 +26,6 @@ func deepCopy(n Node) (Node, error) {
 		node = m
 	case *ListNode:
 		l := NewListNode(v.Id())
-		l.SetIndex(v.Index())
 		node = l
 	case *RegisterNode:
 		return NewRegisterNode(v.Id(), v.Value()), nil
@@ -33,13 +33,21 @@ func deepCopy(n Node) (Node, error) {
 		return nil, errors.Errorf("malicious entry of type %T inside json tree", n)
 	}
 
+	// if deep flag is not set do not copy recursively
+	if !deep {
+		for id := range n.Children() {
+			node.Children()[id] = n.Children()[id]
+		}
+		return node, nil
+	}
+
 	// recursive deepcopy
-	for key, val := range n.Child() {
-		deepVal, err := deepCopy(val)
+	for key, val := range n.Children() {
+		deepVal, err := deepCopy(val, true)
 		if err != nil {
 			return nil, err
 		}
-		node.Child()[key] = deepVal
+		node.Children()[key] = deepVal
 	}
 	return node, nil
 }
