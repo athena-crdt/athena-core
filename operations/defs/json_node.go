@@ -36,7 +36,7 @@ type (
 
 		// Serialize and Deserialize aids to perform serialization and deserialization
 		// of the subtree pointed by current node.
-		Serialize() error
+		Serialize() ([]byte, error)
 		Deserialize([]byte) error
 
 		// Clone performs a deepcopy and returns a copied subtree.

@@ -57,7 +57,7 @@ func NewRegisterNode(id ID, value interface{}) *RegisterNode {
 	}
 }
 
-func (r *RegisterNode) Serialize() error {
+func (r *RegisterNode) Serialize() ([]byte, error) {
 	panic("implement me")
 }
 

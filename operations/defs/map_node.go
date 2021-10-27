@@ -27,7 +27,7 @@ func (m *MapNode) Clone() (Node, error) {
 	return deepCopy(m)
 }
 
-func (m *MapNode) Serialize() error {
+func (m *MapNode) Serialize() ([]byte, error) {
 	panic("implement me")
 }
 

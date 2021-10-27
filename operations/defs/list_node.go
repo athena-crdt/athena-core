@@ -48,7 +48,7 @@ func (l *ListNode) InsertAfter(id string, child Node) error {
 	panic("implement")
 }
 
-func (l *ListNode) Serialize() error {
+func (l *ListNode) Serialize() ([]byte, error) {
 	panic("implement me")
 }
 
