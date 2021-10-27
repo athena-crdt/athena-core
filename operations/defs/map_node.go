@@ -19,12 +19,29 @@ type MapNode struct {
 }
 
 // NewMapNode is an exported function used to create a Node of type MapNode.
-func NewMapNode(id ID) *MapNode {
+func NewMapNode(id Id) *MapNode {
 	return &MapNode{baseNode: newBaseNode(id)}
 }
 
+func (m *MapNode) Assign(child Node) error {
+	m.Child()[child.Id()] = child
+	return nil
+}
+
+func (m *MapNode) Delete(id Id) error {
+	child, present := m.Child()[id]
+	if present && !child.IsTombStone() {
+		child.MarkTombstone()
+	}
+	return nil
+}
+
+func (m *MapNode) DeepClone() (Node, error) {
+	return deepCopy(m, true)
+}
+
 func (m *MapNode) Clone() (Node, error) {
-	return deepCopy(m)
+	return deepCopy(m, false)
 }
 
 func (m *MapNode) Serialize() ([]byte, error) {
