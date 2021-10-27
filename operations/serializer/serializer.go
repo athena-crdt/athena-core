@@ -18,7 +18,8 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
-	"fmt"
+
+	"github.com/athena-crdt/athena-core/operations/defs"
 )
 
 type (
@@ -31,7 +32,9 @@ type (
 )
 
 func init() {
-	fmt.Println("Register types for gob encoding")
+	gob.Register(&defs.ListNode{})
+	gob.Register(&defs.MapNode{})
+	gob.Register(&defs.RegisterNode{})
 }
 
 func (obj *JsonSerializer) Serialize(any interface{}) ([]byte, error) {
