@@ -14,38 +14,93 @@
 
 package defs
 
+import "github.com/pkg/errors"
+
 type ListNode struct {
 	*baseNode
-	listIndex uint64
 }
 
 // NewListNode returns a Node of type ListNode.
-func NewListNode(id ID) *ListNode {
+func NewListNode(id NodeId) *ListNode {
 	return &ListNode{
 		baseNode: newBaseNode(id),
 	}
 }
 
-func (l *ListNode) Clone() (Node, error) {
-	return deepCopy(l)
-}
-
-// Index returns the current index of ListNode.
-func (l *ListNode) Index() uint64 {
-	return l.listIndex
-}
-
-// SetIndex sets the index of currentNode with the given index.
-func (l *ListNode) SetIndex(idx uint64) {
-	l.listIndex = idx
+func (l *ListNode) Assign(child Node, _ bool) error {
+	if elm, ok := l.Children()[child.Id()]; !ok {
+		return errors.Errorf("invalid id assignment, child of id %v doesn't exists for listNode of id %v", child.Id(), l.id)
+	} else if elm.ListIndex() != child.ListIndex() {
+		return errors.Errorf("invalid id assignment, child of id %v  has invalid index for listNode of id %v", child.Id(), l.id)
+	} else if elm.IsTombStone() {
+		return errors.Errorf("invalid id assignment, child of id %v is marked as tombstone id %v", child.Id(), l.id)
+	}
+	return l.baseNode.Assign(child, true)
 }
 
 func (l *ListNode) InsertAtHead(child Node) error {
-	panic("implement")
+	// child.id already present
+	_, present := l.Children()[child.Id()]
+	if present {
+		return errors.Errorf("invalid head insertion, child of id %v already exists for listNode of id %v", child.Id(), l.id)
+	}
+
+	// child should have listIndex as 0
+	child.SetListIndex(0)
+
+	// increment all other existing elems
+	for id := range l.Children() {
+		l.Children()[id].SetListIndex(l.Children()[id].ListIndex() + 1)
+	}
+
+	l.Children()[child.Id()] = child
+	return nil
 }
 
-func (l *ListNode) InsertAfter(id string, child Node) error {
-	panic("implement")
+func (l *ListNode) InsertAfter(id NodeId, child Node) error {
+	// child.id already present
+	_, present := l.Children()[child.Id()]
+	if present {
+		return errors.Errorf("invalid list insertion, child of id %v already exists for listNode of id %v", child.Id(), l.id)
+	}
+
+	markedElem, ok := l.Children()[id]
+	if !ok {
+		return errors.Errorf("invalid list insertion, child of id %v doesn't exists for listNode of id %v", id, l.id)
+	}
+
+	// increment listIndex for all later elements
+	for id := range l.Children() {
+		if l.Children()[id].ListIndex() > markedElem.ListIndex() {
+			l.Children()[id].SetListIndex(l.Children()[id].ListIndex() + 1)
+		}
+	}
+	child.SetListIndex(markedElem.ListIndex() + 1)
+	l.Children()[child.Id()] = child
+	return nil
+}
+
+func (l *ListNode) Delete(id NodeId) error {
+	child, present := l.Children()[id]
+	if present && !child.IsTombStone() {
+		child.MarkTombstone()
+		// decrement index of elems
+		for id := range l.Children() {
+			if l.Children()[id].ListIndex() > child.ListIndex() {
+				l.Children()[id].SetListIndex(l.Children()[id].ListIndex() - 1)
+			}
+		}
+		return nil
+	}
+	return errors.Errorf("Cannot delete id %v from listNode of id %v", id, l.Id())
+}
+
+func (l *ListNode) DeepClone() (Node, error) {
+	return deepCopy(l, true)
+}
+
+func (l *ListNode) Clone() (Node, error) {
+	return deepCopy(l, false)
 }
 
 func (l *ListNode) Serialize() ([]byte, error) {

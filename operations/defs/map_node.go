@@ -14,17 +14,32 @@
 
 package defs
 
+import "github.com/pkg/errors"
+
 type MapNode struct {
 	*baseNode
 }
 
 // NewMapNode is an exported function used to create a Node of type MapNode.
-func NewMapNode(id ID) *MapNode {
+func NewMapNode(id NodeId) *MapNode {
 	return &MapNode{baseNode: newBaseNode(id)}
 }
 
+func (m *MapNode) Delete(id NodeId) error {
+	child, present := m.Children()[id]
+	if present && !child.IsTombStone() {
+		child.MarkTombstone()
+		return nil
+	}
+	return errors.Errorf("Cannot delete id %v from mapNode of id %v", id, m.Id())
+}
+
+func (m *MapNode) DeepClone() (Node, error) {
+	return deepCopy(m, true)
+}
+
 func (m *MapNode) Clone() (Node, error) {
-	return deepCopy(m)
+	return deepCopy(m, false)
 }
 
 func (m *MapNode) Serialize() ([]byte, error) {

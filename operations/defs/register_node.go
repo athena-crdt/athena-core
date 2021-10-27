@@ -21,8 +21,17 @@ type RegisterNode struct {
 	value interface{}
 }
 
-func (r *RegisterNode) Clone() (Node, error) {
-	return NewRegisterNode(r.id, r.value), nil
+// NewRegisterNode returns a Node of type RegisterNode with given id and value.
+func NewRegisterNode(id NodeId, value interface{}) *RegisterNode {
+	return &RegisterNode{
+		baseNode: &baseNode{
+			id:        id,
+			tombstone: false,
+			children:  nil,
+			listIndex: -1,
+		},
+		value: value,
+	}
 }
 
 // SetValue assigns the current node with the given value.
@@ -36,25 +45,22 @@ func (r *RegisterNode) Value() interface{} {
 }
 
 // FetchChild override. RegisterNode is always a leaf node.
-func (r *RegisterNode) FetchChild([]ID) (Node, error) {
+func (r *RegisterNode) FetchChild([]NodeId) (Node, error) {
 	return nil, errors.New("RegisterNode doesn't have a children set")
 }
 
 // Child returns a nil object, as RegisterNode itself is a leaf node.
-func (r *RegisterNode) Child() Children {
+func (r *RegisterNode) Children() Children {
 	return nil
 }
 
-// NewRegisterNode returns a Node of type RegisterNode with given id and value.
-func NewRegisterNode(id ID, value interface{}) *RegisterNode {
-	return &RegisterNode{
-		baseNode: &baseNode{
-			id:        id,
-			tombstone: false,
-			children:  nil,
-		},
-		value: value,
-	}
+// DeepClone and Clone does the same thing here
+func (r *RegisterNode) Clone() (Node, error) {
+	return NewRegisterNode(r.id, r.value), nil
+}
+
+func (r *RegisterNode) DeepClone() (Node, error) {
+	return r.Clone()
 }
 
 func (r *RegisterNode) Serialize() ([]byte, error) {
@@ -63,4 +69,8 @@ func (r *RegisterNode) Serialize() ([]byte, error) {
 
 func (r *RegisterNode) Deserialize(bytes []byte) error {
 	panic("implement me")
+}
+
+func (r *RegisterNode) Delete(NodeId) error {
+	return errors.New("Delete is not a property of RegisterNode")
 }
