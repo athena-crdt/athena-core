@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
+	"fmt"
 )
 
 type (
@@ -25,18 +26,21 @@ type (
 	GobSerializer  struct{}
 	Serializer     interface {
 		Serialize(any interface{}) ([]byte, error)
-		Deserialize(data []byte) (interface{}, error)
+		Deserialize(data []byte, v *interface{}) error
 	}
 )
+
+func init() {
+	fmt.Println("Register types for gob encoding")
+}
 
 func (obj *JsonSerializer) Serialize(any interface{}) ([]byte, error) {
 	return json.Marshal(any)
 }
 
-func (obj *JsonSerializer) Deserialize(data []byte) (interface{}, error) {
-	v := new(interface{})
+func (obj *JsonSerializer) Deserialize(data []byte, v *interface{}) error {
 	err := json.Unmarshal(data, v)
-	return v, err
+	return err
 }
 
 func (obj *GobSerializer) Serialize(any interface{}) ([]byte, error) {
@@ -46,11 +50,10 @@ func (obj *GobSerializer) Serialize(any interface{}) ([]byte, error) {
 	return buf.Bytes(), err
 }
 
-func (obj *GobSerializer) Deserialize(data []byte) (interface{}, error) {
-	v := new(interface{})
+func (obj *GobSerializer) Deserialize(data []byte, v *interface{}) error {
 	buf := bytes.Buffer{}
 	buf.Write(data)
 	dec := gob.NewDecoder(&buf)
 	err := dec.Decode(v)
-	return v, err
+	return err
 }
