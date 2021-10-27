@@ -28,14 +28,14 @@ func TestListInsert(t *testing.T) {
 	list.InsertAfter("i2", NewRegisterNode("i3", 3))
 	list.InsertAfter("i1", NewRegisterNode("i4", 4)) // [2, 3, 1, 4]
 
-	assert.Equal(list.Child()["i2"].ListIndex(), 0)
-	assert.Equal(list.Child()["i2"].(*RegisterNode).Value(), 2)
-	assert.Equal(list.Child()["i3"].ListIndex(), 1)
-	assert.Equal(list.Child()["i3"].(*RegisterNode).Value(), 3)
-	assert.Equal(list.Child()["i1"].ListIndex(), 2)
-	assert.Equal(list.Child()["i1"].(*RegisterNode).Value(), 1)
-	assert.Equal(list.Child()["i4"].ListIndex(), 3)
-	assert.Equal(list.Child()["i4"].(*RegisterNode).Value(), 4)
+	assert.Equal(list.Children()["i2"].ListIndex(), 0)
+	assert.Equal(list.Children()["i2"].(*RegisterNode).Value(), 2)
+	assert.Equal(list.Children()["i3"].ListIndex(), 1)
+	assert.Equal(list.Children()["i3"].(*RegisterNode).Value(), 3)
+	assert.Equal(list.Children()["i1"].ListIndex(), 2)
+	assert.Equal(list.Children()["i1"].(*RegisterNode).Value(), 1)
+	assert.Equal(list.Children()["i4"].ListIndex(), 3)
+	assert.Equal(list.Children()["i4"].(*RegisterNode).Value(), 4)
 
 }
 
@@ -48,43 +48,39 @@ func TestListDelete(t *testing.T) {
 	list.InsertAfter("i1", NewRegisterNode("i4", 4)) // [2, 3, 1, 4]
 
 	list.Delete("i3") // [2, 1, 4]
-	assert.Equal(list.Child()["i2"].ListIndex(), 0)
-	assert.Equal(list.Child()["i2"].(*RegisterNode).Value(), 2)
-	assert.Equal(list.Child()["i1"].ListIndex(), 1)
-	assert.Equal(list.Child()["i1"].(*RegisterNode).Value(), 1)
-	assert.Equal(list.Child()["i4"].ListIndex(), 2)
-	assert.Equal(list.Child()["i4"].(*RegisterNode).Value(), 4)
+	assert.Equal(list.Children()["i2"].ListIndex(), 0)
+	assert.Equal(list.Children()["i2"].(*RegisterNode).Value(), 2)
+	assert.Equal(list.Children()["i1"].ListIndex(), 1)
+	assert.Equal(list.Children()["i1"].(*RegisterNode).Value(), 1)
+	assert.Equal(list.Children()["i4"].ListIndex(), 2)
+	assert.Equal(list.Children()["i4"].(*RegisterNode).Value(), 4)
 
 	list.Delete("i4") // [2, 1]
-	assert.Equal(list.Child()["i2"].ListIndex(), 0)
-	assert.Equal(list.Child()["i2"].(*RegisterNode).Value(), 2)
-	assert.Equal(list.Child()["i1"].ListIndex(), 1)
-	assert.Equal(list.Child()["i1"].(*RegisterNode).Value(), 1)
+	assert.Equal(list.Children()["i2"].ListIndex(), 0)
+	assert.Equal(list.Children()["i2"].(*RegisterNode).Value(), 2)
+	assert.Equal(list.Children()["i1"].ListIndex(), 1)
+	assert.Equal(list.Children()["i1"].(*RegisterNode).Value(), 1)
 
 	list.Delete("i2") // [1]
-	assert.Equal(list.Child()["i1"].ListIndex(), 0)
-	assert.Equal(list.Child()["i1"].(*RegisterNode).Value(), 1)
+	assert.Equal(list.Children()["i1"].ListIndex(), 0)
+	assert.Equal(list.Children()["i1"].(*RegisterNode).Value(), 1)
 
-	assert.Nil(list.Get("i2"))
-	assert.NotNil(list.Get("i1"))
+	assert.Nil(list.Child("i2"))
+	assert.NotNil(list.Child("i1"))
 }
 
 func TestListAssign(t *testing.T) {
 	assert := assert.New(t)
 	list := NewListNode("list")
 
-	err1 := list.Assign(NewRegisterNode("fail1", 1))
-	list.InsertAtHead(NewRegisterNode("i1", 1))
-	err2 := list.Assign(NewRegisterNode("i1", 2))
+	assert.NotNil(list.Assign(NewRegisterNode("fail1", 1), true))
+	assert.Nil(list.InsertAtHead(NewRegisterNode("i1", 1)))
+	assert.NotNil(list.Assign(NewRegisterNode("i1", 2), true))
 
 	reg := NewRegisterNode("i1", 2)
 	reg.SetListIndex(0)
-	err3 := list.Assign(reg)
+	assert.Nil(list.Assign(reg, true))
 
-	assert.NotNil(err1)
-	assert.NotNil(err2)
-	assert.NotEqual(err1, err2)
-	assert.Nil(err3)
-
-	assert.Equal(list.Get("i1").(*RegisterNode).Value(), 2)
+	i1, _ := list.Child("i1")
+	assert.Equal(i1.(*RegisterNode).Value(), 2)
 }

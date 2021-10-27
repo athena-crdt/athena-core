@@ -22,7 +22,7 @@ type RegisterNode struct {
 }
 
 // NewRegisterNode returns a Node of type RegisterNode with given id and value.
-func NewRegisterNode(id Id, value interface{}) *RegisterNode {
+func NewRegisterNode(id NodeId, value interface{}) *RegisterNode {
 	return &RegisterNode{
 		baseNode: &baseNode{
 			id:        id,
@@ -45,12 +45,12 @@ func (r *RegisterNode) Value() interface{} {
 }
 
 // FetchChild override. RegisterNode is always a leaf node.
-func (r *RegisterNode) FetchChild([]Id) (Node, error) {
+func (r *RegisterNode) FetchChild([]NodeId) (Node, error) {
 	return nil, errors.New("RegisterNode doesn't have a children set")
 }
 
 // Child returns a nil object, as RegisterNode itself is a leaf node.
-func (r *RegisterNode) Child() Children {
+func (r *RegisterNode) Children() Children {
 	return nil
 }
 
@@ -69,4 +69,8 @@ func (r *RegisterNode) Serialize() ([]byte, error) {
 
 func (r *RegisterNode) Deserialize(bytes []byte) error {
 	panic("implement me")
+}
+
+func (r *RegisterNode) Delete(NodeId) error {
+	return errors.New("Delete is not a property of RegisterNode")
 }

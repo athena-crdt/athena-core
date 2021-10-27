@@ -35,19 +35,19 @@ func deepCopy(n Node, deep bool) (Node, error) {
 
 	// if deep flag is not set do not copy recursively
 	if !deep {
-		for _id := range n.Child() {
-			node.Child()[_id] = n.Child()[_id]
+		for id := range n.Children() {
+			node.Children()[id] = n.Children()[id]
 		}
 		return node, nil
 	}
 
 	// recursive deepcopy
-	for key, val := range n.Child() {
+	for key, val := range n.Children() {
 		deepVal, err := deepCopy(val, true)
 		if err != nil {
 			return nil, err
 		}
-		node.Child()[key] = deepVal
+		node.Children()[key] = deepVal
 	}
 	return node, nil
 }

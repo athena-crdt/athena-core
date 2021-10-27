@@ -25,13 +25,13 @@ func TestNodeSetId(t *testing.T) {
 	assert := assert.New(t)
 	tree := &baseNode{}
 
-	hehe := tree.SetId(Id("cat moment"))
+	hehe := tree.SetId(NodeId("cat moment"))
 	assert.Nil(hehe)
-	assert.Equal(tree.Id(), Id("cat moment"))
+	assert.Equal(tree.Id(), NodeId("cat moment"))
 
-	err := tree.SetId(Id("uwu"))
+	err := tree.SetId(NodeId("uwu"))
 	assert.NotNil(err)
-	assert.Equal(tree.Id(), Id("cat moment"))
+	assert.Equal(tree.Id(), NodeId("cat moment"))
 }
 
 func TestMarkTombStone(t *testing.T) {
@@ -53,15 +53,17 @@ func TestSetListIndex(t *testing.T) {
 func TestGet(t *testing.T) {
 	assert := assert.New(t)
 	doc := NewMapNode("cat")
-	doc.Assign(NewMapNode("uwu"))
-	doc.Assign(NewRegisterNode("onichan", ":3"))
-	doc.Assign(NewListNode("araara"))
+	doc.Assign(NewMapNode("uwu"), true)
+	doc.Assign(NewRegisterNode("onichan", ":3"), true)
+	doc.Assign(NewListNode("araara"), true)
 	doc.Delete("uwu")
-	assert.Nil(doc.Get("uwu"))
+	uwu, _ := doc.Child("uwu")
+	assert.Nil(uwu)
 	doc.Delete("uwu")
 	doc.Delete("onichan")
-	assert.Equal(len(doc.Child()), 3)
-	assert.Equal(doc.Get("araara").Id(), Id("araara"))
+	assert.Equal(len(doc.Children()), 3)
+	araara, _ := doc.Child("araara")
+	assert.Equal(araara.Id(), NodeId("araara"))
 }
 
 func TestFetchChild(t *testing.T) {
@@ -77,29 +79,29 @@ func TestFetchChild(t *testing.T) {
 	r4 := NewRegisterNode("r4", 4)
 	del := NewRegisterNode("del", "delete")
 
-	doc.Assign(c1)
-	c1.Assign(r1)
+	doc.Assign(c1, true)
+	c1.Assign(r1, true)
 	l1.InsertAtHead(lc1)
 	l1.InsertAtHead(lc2)
-	lc1.Assign(r2)
-	lc2.Assign(r3)
-	doc.Assign(l1)
-	doc.Assign(r4) // doc: { "c1": {r1: 1}, "l1": [{ "r3": 3 }, { "r2": 2 }], "r4": 4 }
-	doc.Assign(del)
+	lc1.Assign(r2, true)
+	lc2.Assign(r3, true)
+	doc.Assign(l1, true)
+	doc.Assign(r4, true) // doc: { "c1": {r1: 1}, "l1": [{ "r3": 3 }, { "r2": 2 }], "r4": 4 }
+	doc.Assign(del, true)
 	doc.Delete("del")
 
 	for _, test := range []struct {
-		arg      []Id
+		arg      []NodeId
 		expected Node
 		err      error
 	}{
-		{[]Id{Id("c1"), Id("r1")}, r1, nil},
-		{[]Id{Id("l1"), Id("lc1"), Id("r2")}, r2, nil},
-		{[]Id{Id("l1"), Id("lc2"), Id("r3")}, r3, nil},
-		{[]Id{Id("r4")}, r4, nil},
-		{[]Id{Id("r5")}, nil, errors.New("invalid id set, child of id r5 doesn't exists for node of id doc")},
-		{[]Id{Id("del")}, nil, errors.New("children of id del has been marked as tombstone, can't access the subtree")},
-		{[]Id{Id("r4"), Id("r4")}, nil, errors.New("expected empty id[] when a RegisterNode of id r4 is reached")},
+		{[]NodeId{NodeId("c1"), NodeId("r1")}, r1, nil},
+		{[]NodeId{NodeId("l1"), NodeId("lc1"), NodeId("r2")}, r2, nil},
+		{[]NodeId{NodeId("l1"), NodeId("lc2"), NodeId("r3")}, r3, nil},
+		{[]NodeId{NodeId("r4")}, r4, nil},
+		{[]NodeId{NodeId("r5")}, nil, errors.New("invalid id set, child of id r5 doesn't exists for node of id doc")},
+		{[]NodeId{NodeId("del")}, nil, errors.New("children of id del has been marked as tombstone, can't access the subtree")},
+		{[]NodeId{NodeId("r4"), NodeId("r4")}, nil, errors.New("expected empty id[] when a RegisterNode of id r4 is reached")},
 	} {
 		node, e := doc.FetchChild(test.arg)
 		assert.Equal(node, test.expected)

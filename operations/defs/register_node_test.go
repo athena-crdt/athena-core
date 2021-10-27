@@ -35,8 +35,8 @@ func TestChild(t *testing.T) {
 	assert := assert.New(t)
 	reg := NewRegisterNode("test", 1)
 
-	assert.Nil(reg.Child())
+	assert.Nil(reg.Children())
 
-	path := []Id{Id("bruh"), Id("bruh2")}
+	path := []NodeId{NodeId("bruh"), NodeId("bruh2")}
 	assert.Nil(reg.FetchChild(path))
 }
