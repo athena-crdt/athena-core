@@ -81,6 +81,7 @@ func TestListAssign(t *testing.T) {
 	reg.SetListIndex(0)
 	assert.Nil(list.Assign(reg, true))
 
-	i1, _ := list.Child("i1")
+	i1, err := list.Child("i1")
+	assert.Nil(err)
 	assert.Equal(i1.(*RegisterNode).Value(), 2)
 }
