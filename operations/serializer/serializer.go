@@ -18,27 +18,19 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
-
-	"github.com/athena-crdt/athena-core/operations/defs"
 )
 
 type (
 	JsonSerializer struct{}
 	GobSerializer  struct{}
 	Serializer     interface {
-		Serialize(any interface{}) ([]byte, error)
-		Deserialize(data []byte, v *interface{}) error
+		Serialize(interface{}) ([]byte, error)
+		Deserialize([]byte, *interface{}) error
 	}
 )
 
-func init() {
-	gob.Register(&defs.ListNode{})
-	gob.Register(&defs.MapNode{})
-	gob.Register(&defs.RegisterNode{})
-}
-
 func (obj *JsonSerializer) Serialize(any interface{}) ([]byte, error) {
-	return json.Marshal(any)
+	return json.Marshal(&any)
 }
 
 func (obj *JsonSerializer) Deserialize(data []byte, v *interface{}) error {
