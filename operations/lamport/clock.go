@@ -20,6 +20,23 @@ import (
 
 type Clock struct {
 	counter uint64
+	hostId  string
+}
+
+func (clock *Clock) IsGreaterThan(obj *Clock) bool {
+	if atomic.LoadUint64(&obj.counter) == atomic.LoadUint64(&clock.counter) {
+		return clock.hostId > obj.hostId
+	} else {
+		return atomic.LoadUint64(&clock.counter) > atomic.LoadUint64(&obj.counter)
+	}
+}
+
+func (clock *Clock) IsLessThan(obj *Clock) bool {
+	if atomic.LoadUint64(&obj.counter) == atomic.LoadUint64(&clock.counter) {
+		return clock.hostId < obj.hostId
+	} else {
+		return atomic.LoadUint64(&clock.counter) < atomic.LoadUint64(&obj.counter)
+	}
 }
 
 func (clock *Clock) Increment() uint64 {
@@ -41,4 +58,8 @@ func (clock *Clock) CompareAndUpdate(value uint64) {
 
 func (clock *Clock) GetTime() uint64 {
 	return atomic.LoadUint64(&clock.counter)
+}
+
+func (clock *Clock) SetTime(value uint64) {
+	atomic.StoreUint64(&clock.counter, value)
 }

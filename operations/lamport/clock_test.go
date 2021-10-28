@@ -21,22 +21,22 @@ import (
 )
 
 func TestClock(t *testing.T) {
-	clock := &Clock{}
+	clock := &Clock{0, "xyz"}
 	assert := assert.New(t)
 
 	assert.Equal(uint64(0), clock.GetTime(), "Invalid initialisation of clock")
 	assert.Equal(uint64(1), clock.Increment(), "Invalid time")
 	assert.Equal(uint64(1), clock.GetTime(), "Invalid time")
 	for _, test := range []struct {
-		arg, expected uint64
+		arg      Clock
+		expected uint64
 	}{
-		{10, 11},
-		{16, 17},
-		{8, 17},
-		{17, 18},
-		{1, 18},
+		{arg: Clock{10, "abc"}, expected: 11},
+		{arg: Clock{10, "def"}, expected: 11},
+		{arg: Clock{11, "def"}, expected: 12},
+		{arg: Clock{7, "fgh"}, expected: 12},
 	} {
-		clock.CompareAndUpdate(test.arg)
+		clock.CompareAndUpdate(test.arg.counter)
 		assert.Equal(test.expected, clock.GetTime(), "Invalid time")
 	}
 }
