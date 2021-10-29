@@ -33,24 +33,14 @@ func TestSerializer(t *testing.T) {
 		"x":    1,
 		"list": []byte{65, 66, 67},
 	}
-
-	// Testing Json Serializer and Deserializer
-	obj = &JsonSerializer{}
-	data, err := obj.Serialize(tc)
-	assert.Equal(t, nil, err, err)
-	err = obj.Deserialize(data, &v)
-	assert.Equal(t, nil, err, err)
-	newData, err := obj.Serialize(v)
-	assert.Equal(t, data, newData, "Json Deserialization failed")
-
 	//Testing Gob Serializer and Deserializer
 	obj = &GobSerializer{}
-	data, err = obj.Serialize(tc)
+	data, err := obj.Serialize(tc)
 	assert.Equal(t, nil, err, err)
 	v = &map[string]interface{}{}
 	err = obj.Deserialize(data, &v)
 	assert.Equal(t, nil, err, err)
-	newData, err = obj.Serialize(v)
+	newData, err := obj.Serialize(v)
 	assert.Equal(t, nil, err, err)
 	assert.Equal(t, data, newData, "Gob Deserialization failed")
 }

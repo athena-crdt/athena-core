@@ -17,26 +17,15 @@ package serializer
 import (
 	"bytes"
 	"encoding/gob"
-	"encoding/json"
 )
 
 type (
-	JsonSerializer struct{}
-	GobSerializer  struct{}
-	Serializer     interface {
+	GobSerializer struct{}
+	Serializer    interface {
 		Serialize(interface{}) ([]byte, error)
 		Deserialize([]byte, *interface{}) error
 	}
 )
-
-func (obj *JsonSerializer) Serialize(any interface{}) ([]byte, error) {
-	return json.Marshal(&any)
-}
-
-func (obj *JsonSerializer) Deserialize(data []byte, v *interface{}) error {
-	err := json.Unmarshal(data, v)
-	return err
-}
 
 func (obj *GobSerializer) Serialize(any interface{}) ([]byte, error) {
 	buf := bytes.Buffer{}
