@@ -15,17 +15,11 @@
 package defs
 
 import (
-	"encoding/gob"
-
 	"github.com/pkg/errors"
 )
 
 type ListNode struct {
 	*baseNode
-}
-
-func init() {
-	gob.Register(&ListNode{})
 }
 
 // NewListNode returns a Node of type ListNode.

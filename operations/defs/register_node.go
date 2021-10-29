@@ -15,18 +15,12 @@
 package defs
 
 import (
-	"encoding/gob"
-
 	"github.com/pkg/errors"
 )
 
 type RegisterNode struct {
 	*baseNode
 	value interface{}
-}
-
-func init() {
-	gob.Register(&RegisterNode{})
 }
 
 // NewRegisterNode returns a Node of type RegisterNode with given id and value.

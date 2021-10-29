@@ -15,17 +15,11 @@
 package defs
 
 import (
-	"encoding/gob"
-
 	"github.com/pkg/errors"
 )
 
 type MapNode struct {
 	*baseNode
-}
-
-func init() {
-	gob.Register(&MapNode{})
 }
 
 // NewMapNode is an exported function used to create a Node of type MapNode.
