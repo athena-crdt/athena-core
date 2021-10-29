@@ -25,7 +25,7 @@ type ListNode struct {
 }
 
 func init() {
-	gob.Register(&defs.ListNode{})
+	gob.Register(&ListNode{})
 }
 
 // NewListNode returns a Node of type ListNode.
