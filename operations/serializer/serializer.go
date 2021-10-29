@@ -36,6 +36,9 @@ func (obj *GobSerializer) Serialize(any interface{}) ([]byte, error) {
 
 func (obj *GobSerializer) Deserialize(data []byte, v *interface{}) error {
 	buf := bytes.Buffer{}
-	buf.Write(data)
+	_, err := buf.Write(data)
+	if err != nil {
+		return err
+	}
 	return gob.NewDecoder(&buf).Decode(v)
 }
