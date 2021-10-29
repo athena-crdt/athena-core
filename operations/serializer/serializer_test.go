@@ -28,8 +28,7 @@ func init() {
 func TestSerializer(t *testing.T) {
 	var obj Serializer
 	var v interface{}
-	v = &map[string]interface{}{}
-	tc := map[string]interface{}{
+	tc := &map[string]interface{}{
 		"x":    1,
 		"list": []byte{65, 66, 67},
 	}
