@@ -38,7 +38,7 @@ message Operation {
   // Dependency array
   repeated Id dependencies = 2;
   // JsonPath cursor
-  string cursor = 3;
+  repeated string cursor = 3;
   // Type of Operation
   Mutation mutation = 4;
 }

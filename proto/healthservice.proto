@@ -32,7 +32,7 @@ message HealthCheckResponse {
 }
 
 service HealthService {
-  rpc Check(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc Check (HealthCheckRequest) returns (HealthCheckResponse);
 
-  rpc Watch(HealthCheckRequest) returns (stream HealthCheckResponse);
+  rpc Watch (HealthCheckRequest) returns (stream HealthCheckResponse);
 }

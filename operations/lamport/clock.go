@@ -14,29 +14,33 @@
 
 package lamport
 
-import (
-	"sync/atomic"
-)
+import "sync/atomic"
 
 type Clock struct {
+	// counter represents current lamport counter value.
 	counter uint64
+	// hostId identifies the host where the operation was generated at first place.
 	hostId  string
 }
 
-func (clock *Clock) IsGreaterThan(obj *Clock) bool {
-	if atomic.LoadUint64(&obj.counter) == atomic.LoadUint64(&clock.counter) {
-		return clock.hostId > obj.hostId
-	} else {
-		return atomic.LoadUint64(&clock.counter) > atomic.LoadUint64(&obj.counter)
+// NewClock returns a pointer to a newly created clock.
+func NewClock(counter uint64, hostId string) *Clock {
+	return &Clock{
+		hostId: hostId,
+		counter: counter,
 	}
 }
 
+func (clock *Clock) IsGreaterThan(obj *Clock) bool {
+	return atomic.LoadUint64(&clock.counter) > atomic.LoadUint64(&obj.counter)
+}
+
 func (clock *Clock) IsLessThan(obj *Clock) bool {
-	if atomic.LoadUint64(&obj.counter) == atomic.LoadUint64(&clock.counter) {
-		return clock.hostId < obj.hostId
-	} else {
-		return atomic.LoadUint64(&clock.counter) < atomic.LoadUint64(&obj.counter)
-	}
+	 return atomic.LoadUint64(&clock.counter) < atomic.LoadUint64(&obj.counter)
+}
+
+func (clock *Clock) IsEqual(obj *Clock) bool {
+	return atomic.LoadUint64(&clock.counter) == atomic.LoadUint64(&obj.counter)
 }
 
 func (clock *Clock) Increment() uint64 {
