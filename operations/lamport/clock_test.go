@@ -42,7 +42,7 @@ func TestClock(t *testing.T) {
 	clock.SetTime(20)
 	assert.Equal(uint64(20), clock.GetTime(), "Invalid time")
 	res := clock.IsGreaterThan(&Clock{20, "def"})
-	assert.Equal(true, res, "Greater than but concludes lesser")
+	assert.Equal(false, res, "Greater than but concludes lesser")
 	res = clock.IsGreaterThan(&Clock{25, "efg"})
 	assert.Equal(false, res, "Lesser than but concludes greater")
 	res = clock.IsLessThan(&Clock{10, "def"})
