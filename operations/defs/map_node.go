@@ -14,7 +14,9 @@
 
 package defs
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
 type MapNode struct {
 	*baseNode

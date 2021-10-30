@@ -14,7 +14,17 @@
 
 package defs
 
-import "github.com/pkg/errors"
+import (
+	"encoding/gob"
+
+	"github.com/pkg/errors"
+)
+
+func init() {
+	gob.Register(&ListNode{})
+	gob.Register(&MapNode{})
+	gob.Register(&RegisterNode{})
+}
 
 // todo: integrate with lamport counters
 type (
