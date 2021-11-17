@@ -16,6 +16,7 @@ package defs
 
 import (
 	serializer "github.com/athena-crdt/athena-core/operations/serializer"
+  
 	"github.com/pkg/errors"
 )
 
