@@ -17,29 +17,22 @@ package serializer
 import (
 	"testing"
 
-	"github.com/athena-crdt/athena-core/operations/defs"
-
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSerializer(t *testing.T) {
-	node := &defs.RegisterNode{
-		Value: 1,
-		BaseNode: &defs.BaseNode{
-			Id:        "abc",
-			Tombstone: false,
-			Children:  nil,
-			ListIndex: 0,
-		},
+	x := &map[string]interface{}{
+		"X": 1,
+		"Y": []byte{1, 2, 2},
 	}
 	serializer := &GobSerializer{}
-	data, err := serializer.Serialize(node)
+	data, err := serializer.Serialize(x)
 	assert.Equal(t, nil, err, "Serialization failed")
 
-	newReg := &defs.RegisterNode{}
-	err = serializer.Deserialize(data, newReg)
+	newX := &map[string]interface{}{}
+	err = serializer.Deserialize(data, newX)
 	assert.Equal(t, nil, err, "Deserialization failed")
-	data2, err := serializer.Serialize(newReg)
+	data2, err := serializer.Serialize(newX)
 	assert.Equal(t, nil, err, "Deserialization failed")
 	assert.Equal(t, data, data2, "Deserialization failed")
 }
