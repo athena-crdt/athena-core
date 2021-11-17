@@ -15,7 +15,7 @@
 package defs
 
 import (
-	serializer2 "github.com/athena-crdt/athena-core/operations/serializer"
+	serializer "github.com/athena-crdt/athena-core/operations/serializer"
 	"github.com/pkg/errors"
 )
 
@@ -67,13 +67,13 @@ func (r *RegisterNode) DeepClone() (Node, error) {
 }
 
 func (r *RegisterNode) Serialize() ([]byte, error) {
-	serializer := serializer2.GobSerializer{}
-	return serializer.Serialize(r)
+	obj := serializer.GobSerializer{}
+	return obj.Serialize(r)
 }
 
 func (r *RegisterNode) Deserialize(bytes []byte) error {
-	deserializer := serializer2.GobSerializer{}
-	err := deserializer.Deserialize(bytes, r)
+	obj := serializer.GobSerializer{}
+	err := obj.Deserialize(bytes, r)
 	return err
 }
 

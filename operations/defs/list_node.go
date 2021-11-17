@@ -15,7 +15,7 @@
 package defs
 
 import (
-	serializer2 "github.com/athena-crdt/athena-core/operations/serializer"
+	serializer "github.com/athena-crdt/athena-core/operations/serializer"
 	"github.com/pkg/errors"
 )
 
@@ -107,12 +107,12 @@ func (l *ListNode) Clone() (Node, error) {
 }
 
 func (l *ListNode) Serialize() ([]byte, error) {
-	serializer := serializer2.GobSerializer{}
-	return serializer.Serialize(l)
+	obj := serializer.GobSerializer{}
+	return obj.Serialize(l)
 }
 
 func (l *ListNode) Deserialize(bytes []byte) error {
-	deserializer := serializer2.GobSerializer{}
-	err := deserializer.Deserialize(bytes, l)
+	obj := serializer.GobSerializer{}
+	err := obj.Deserialize(bytes, l)
 	return err
 }

@@ -15,7 +15,7 @@
 package defs
 
 import (
-	serializer2 "github.com/athena-crdt/athena-core/operations/serializer"
+	serializer "github.com/athena-crdt/athena-core/operations/serializer"
 	"github.com/pkg/errors"
 )
 
@@ -46,12 +46,12 @@ func (m *MapNode) Clone() (Node, error) {
 }
 
 func (m *MapNode) Serialize() ([]byte, error) {
-	serializer := serializer2.GobSerializer{}
-	return serializer.Serialize(m)
+	obj := serializer.GobSerializer{}
+	return obj.Serialize(m)
 }
 
 func (m *MapNode) Deserialize(bytes []byte) error {
-	deserializer := serializer2.GobSerializer{}
-	err := deserializer.Deserialize(bytes, m)
+	obj := serializer.GobSerializer{}
+	err := obj.Deserialize(bytes, m)
 	return err
 }
