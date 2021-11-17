@@ -21,15 +21,15 @@ import (
 )
 
 func TestSerializer(t *testing.T) {
-	x := &map[string]interface{}{
-		"X": 1,
-		"Y": []byte{1, 2, 2},
+	x := &map[string]string{
+		"X": "1",
+		"Y": "2",
 	}
 	serializer := &GobSerializer{}
 	data, err := serializer.Serialize(x)
 	assert.Equal(t, nil, err, "Serialization failed")
 
-	newX := &map[string]interface{}{}
+	newX := &map[string]string{}
 	err = serializer.Deserialize(data, newX)
 	assert.Equal(t, nil, err, "Deserialization failed")
 	data2, err := serializer.Serialize(newX)
