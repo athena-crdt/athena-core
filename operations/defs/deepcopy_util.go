@@ -22,32 +22,32 @@ func deepCopy(n Node, deep bool) (Node, error) {
 	var node Node
 	switch v := n.(type) {
 	case *MapNode:
-		m := NewMapNode(v.Id())
+		m := NewMapNode(v.GetId())
 		node = m
 	case *ListNode:
-		l := NewListNode(v.Id())
+		l := NewListNode(v.GetId())
 		node = l
 	case *RegisterNode:
-		return NewRegisterNode(v.Id(), v.Value()), nil
+		return NewRegisterNode(v.GetId(), v.GetValue()), nil
 	default:
 		return nil, errors.Errorf("malicious entry of type %T inside json tree", n)
 	}
 
 	// if deep flag is not set do not copy recursively
 	if !deep {
-		for id := range n.Children() {
-			node.Children()[id] = n.Children()[id]
+		for id := range n.GetChildren() {
+			node.GetChildren()[id] = n.GetChildren()[id]
 		}
 		return node, nil
 	}
 
-	// recursive deepcopy
-	for key, val := range n.Children() {
+	// recursive deep copy
+	for key, val := range n.GetChildren() {
 		deepVal, err := deepCopy(val, true)
 		if err != nil {
 			return nil, err
 		}
-		node.Children()[key] = deepVal
+		node.GetChildren()[key] = deepVal
 	}
 	return node, nil
 }

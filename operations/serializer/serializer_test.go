@@ -15,31 +15,24 @@
 package serializer
 
 import (
-	"encoding/gob"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func init() {
-	gob.Register(&map[string]interface{}{})
-}
-
 func TestSerializer(t *testing.T) {
-	var obj Serializer
-	var v interface{}
-	tc := &map[string]interface{}{
-		"x":    1,
-		"list": []byte{65, 66, 67},
+	x := &map[string]string{
+		"X": "1",
+		"Y": "2",
 	}
-	//Testing Gob Serializer and Deserializer
-	obj = &GobSerializer{}
-	data, err := obj.Serialize(tc)
-	assert.Equal(t, nil, err, err)
-	v = &map[string]interface{}{}
-	err = obj.Deserialize(data, &v)
-	assert.Equal(t, nil, err, err)
-	newData, err := obj.Serialize(v)
-	assert.Equal(t, nil, err, err)
-	assert.Equal(t, data, newData, "Gob Deserialization failed")
+	serializer := &GobSerializer{}
+	data, err := serializer.Serialize(x)
+	assert.Equal(t, nil, err, "Serialization failed")
+
+	newX := &map[string]string{}
+	err = serializer.Deserialize(data, newX)
+	assert.Equal(t, nil, err, "Deserialization failed")
+	data2, err := serializer.Serialize(newX)
+	assert.Equal(t, nil, err, "Deserialization failed")
+	assert.Equal(t, data, data2, "Deserialization failed")
 }

@@ -15,35 +15,37 @@
 package defs
 
 import (
+	serializer "github.com/athena-crdt/athena-core/operations/serializer"
+
 	"github.com/pkg/errors"
 )
 
 type RegisterNode struct {
-	*baseNode
-	value interface{}
+	*BaseNode
+	Value interface{}
 }
 
 // NewRegisterNode returns a Node of type RegisterNode with given id and value.
 func NewRegisterNode(id NodeId, value interface{}) *RegisterNode {
 	return &RegisterNode{
-		baseNode: &baseNode{
-			id:        id,
-			tombstone: false,
-			children:  nil,
-			listIndex: -1,
+		BaseNode: &BaseNode{
+			Id:        id,
+			Tombstone: false,
+			Children:  nil,
+			ListIndex: -1,
 		},
-		value: value,
+		Value: value,
 	}
 }
 
 // SetValue assigns the current node with the given value.
 func (r *RegisterNode) SetValue(val interface{}) {
-	r.value = val
+	r.Value = val
 }
 
-// Value returns the current RegisterNode value.
-func (r *RegisterNode) Value() interface{} {
-	return r.value
+// GetValue returns the current RegisterNode value.
+func (r *RegisterNode) GetValue() interface{} {
+	return r.Value
 }
 
 // FetchChild override. RegisterNode is always a leaf node.
@@ -51,14 +53,14 @@ func (r *RegisterNode) FetchChild([]NodeId) (Node, error) {
 	return nil, errors.New("RegisterNode doesn't have a children set")
 }
 
-// Child returns a nil object, as RegisterNode itself is a leaf node.
-func (r *RegisterNode) Children() Children {
+// GetChildren returns a nil object, as RegisterNode itself is a leaf node.
+func (r *RegisterNode) GetChildren() ChildNodes {
 	return nil
 }
 
-// DeepClone and Clone does the same thing here
+// Clone and DeepClone does the same thing here
 func (r *RegisterNode) Clone() (Node, error) {
-	return NewRegisterNode(r.id, r.value), nil
+	return NewRegisterNode(r.Id, r.Value), nil
 }
 
 func (r *RegisterNode) DeepClone() (Node, error) {
@@ -66,11 +68,14 @@ func (r *RegisterNode) DeepClone() (Node, error) {
 }
 
 func (r *RegisterNode) Serialize() ([]byte, error) {
-	panic("implement me")
+	obj := serializer.GobSerializer{}
+	return obj.Serialize(r)
 }
 
 func (r *RegisterNode) Deserialize(bytes []byte) error {
-	panic("implement me")
+	obj := serializer.GobSerializer{}
+	err := obj.Deserialize(bytes, r)
+	return err
 }
 
 func (r *RegisterNode) Delete(NodeId) error {

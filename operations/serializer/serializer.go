@@ -23,18 +23,18 @@ type (
 	GobSerializer struct{}
 	Serializer    interface {
 		Serialize(interface{}) ([]byte, error)
-		Deserialize([]byte, *interface{}) error
+		Deserialize([]byte, interface{}) error
 	}
 )
 
-func (obj *GobSerializer) Serialize(any interface{}) ([]byte, error) {
+func (obj *GobSerializer) Serialize(e interface{}) ([]byte, error) {
 	buf := bytes.Buffer{}
-	enc := gob.NewEncoder(&buf)
-	err := enc.Encode(&any)
+	err := gob.NewEncoder(&buf).Encode(e)
 	return buf.Bytes(), err
 }
 
-func (obj *GobSerializer) Deserialize(data []byte, v *interface{}) error {
+func (obj *GobSerializer) Deserialize(data []byte, e interface{}) error {
 	buf := bytes.NewBuffer(data)
-	return gob.NewDecoder(buf).Decode(v)
+	err := gob.NewDecoder(buf).Decode(e)
+	return err
 }
