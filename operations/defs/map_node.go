@@ -15,25 +15,26 @@
 package defs
 
 import (
+	serializer2 "github.com/athena-crdt/athena-core/operations/serializer"
 	"github.com/pkg/errors"
 )
 
 type MapNode struct {
-	*baseNode
+	*BaseNode
 }
 
 // NewMapNode is an exported function used to create a Node of type MapNode.
 func NewMapNode(id NodeId) *MapNode {
-	return &MapNode{baseNode: newBaseNode(id)}
+	return &MapNode{BaseNode: newBaseNode(id)}
 }
 
 func (m *MapNode) Delete(id NodeId) error {
-	child, present := m.Children()[id]
+	child, present := m.GetChildren()[id]
 	if present && !child.IsTombStone() {
 		child.MarkTombstone()
 		return nil
 	}
-	return errors.Errorf("Cannot delete id %v from mapNode of id %v", id, m.Id())
+	return errors.Errorf("Cannot delete id %v from mapNode of id %v", id, m.GetId())
 }
 
 func (m *MapNode) DeepClone() (Node, error) {
@@ -45,9 +46,12 @@ func (m *MapNode) Clone() (Node, error) {
 }
 
 func (m *MapNode) Serialize() ([]byte, error) {
-	panic("implement me")
+	serializer := serializer2.GobSerializer{}
+	return serializer.Serialize(m)
 }
 
 func (m *MapNode) Deserialize(bytes []byte) error {
-	panic("implement me")
+	deserializer := serializer2.GobSerializer{}
+	err := deserializer.Deserialize(bytes, m)
+	return err
 }

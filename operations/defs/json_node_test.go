@@ -23,15 +23,15 @@ import (
 
 func TestNodeSetId(t *testing.T) {
 	assert := assert.New(t)
-	tree := &baseNode{}
+	tree := &BaseNode{}
 
 	hehe := tree.SetId(NodeId("cat moment"))
 	assert.Nil(hehe)
-	assert.Equal(tree.Id(), NodeId("cat moment"))
+	assert.Equal(tree.GetId(), NodeId("cat moment"))
 
 	err := tree.SetId(NodeId("uwu"))
 	assert.NotNil(err)
-	assert.Equal(tree.Id(), NodeId("cat moment"))
+	assert.Equal(tree.GetId(), NodeId("cat moment"))
 }
 
 func TestMarkTombStone(t *testing.T) {
@@ -45,9 +45,9 @@ func TestMarkTombStone(t *testing.T) {
 func TestSetListIndex(t *testing.T) {
 	assert := assert.New(t)
 	doc := NewMapNode("cat")
-	assert.Equal(doc.ListIndex(), -1)
+	assert.Equal(doc.GetListIndex(), -1)
 	doc.SetListIndex(0)
-	assert.Equal(doc.ListIndex(), 0)
+	assert.Equal(doc.GetListIndex(), 0)
 }
 
 func TestGet(t *testing.T) {
@@ -57,13 +57,13 @@ func TestGet(t *testing.T) {
 	doc.Assign(NewRegisterNode("onichan", ":3"), true)
 	doc.Assign(NewListNode("araara"), true)
 	doc.Delete("uwu")
-	uwu, _ := doc.Child("uwu")
+	uwu, _ := doc.GetChild("uwu")
 	assert.Nil(uwu)
 	doc.Delete("uwu")
 	doc.Delete("onichan")
-	assert.Equal(len(doc.Children()), 3)
-	araara, _ := doc.Child("araara")
-	assert.Equal(araara.Id(), NodeId("araara"))
+	assert.Equal(len(doc.GetChildren()), 3)
+	araara, _ := doc.GetChild("araara")
+	assert.Equal(araara.GetId(), NodeId("araara"))
 }
 
 func TestFetchChild(t *testing.T) {

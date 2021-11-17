@@ -31,21 +31,21 @@ func TestMapAssign(t *testing.T) {
 	tree.Assign(c1, true)
 	tree.Assign(c3, true)
 
-	_, c1Present := tree.Children()["test1"]
+	_, c1Present := tree.GetChildren()["test1"]
 	assert.True(c1Present)
-	_, c2Present := tree.Children()["test1"].Children()["test2"]
+	_, c2Present := tree.GetChildren()["test1"].GetChildren()["test2"]
 	assert.True(c2Present)
-	_, c3Present := tree.Children()["test3"]
+	_, c3Present := tree.GetChildren()["test3"]
 	assert.True(c3Present)
 
 	// assert
-	assert.Equal(tree.Children()["test1"], c1)
-	assert.Equal(tree.Children()["test1"].Id(), NodeId("test1"))
-	assert.Equal(tree.Children()["test3"], c3)
-	assert.Equal(tree.Children()["test3"].Id(), NodeId("test3"))
-	assert.Equal(tree.Children()["test1"].Children()["test2"], c2)
-	assert.Equal(tree.Children()["test1"].Children()["test2"].Id(), NodeId("test2"))
-	assert.Equal(len(tree.Children()), 2)
+	assert.Equal(tree.GetChildren()["test1"], c1)
+	assert.Equal(tree.GetChildren()["test1"].GetId(), NodeId("test1"))
+	assert.Equal(tree.GetChildren()["test3"], c3)
+	assert.Equal(tree.GetChildren()["test3"].GetId(), NodeId("test3"))
+	assert.Equal(tree.GetChildren()["test1"].GetChildren()["test2"], c2)
+	assert.Equal(tree.GetChildren()["test1"].GetChildren()["test2"].GetId(), NodeId("test2"))
+	assert.Equal(len(tree.GetChildren()), 2)
 }
 
 func TestMapDelete(t *testing.T) {
@@ -58,7 +58,19 @@ func TestMapDelete(t *testing.T) {
 	tree.Assign(c2, true)
 
 	tree.Delete("test1")
-	assert.Nil(tree.Child("test1"))
-	test2, _ := tree.Child("test2")
-	assert.Equal(test2.Id(), NodeId("test2"))
+	assert.Nil(tree.GetChild("test1"))
+	test2, _ := tree.GetChild("test2")
+	assert.Equal(test2.GetId(), NodeId("test2"))
+}
+
+func TestMapNode_Serialize_Deserialize(t *testing.T) {
+	assert := assert.New(t)
+	mapNode := NewMapNode("test")
+
+	data, err := mapNode.Serialize()
+	assert.Nil(err, "MapNode Serialization failed")
+	newMapNode := &MapNode{}
+	err = newMapNode.Deserialize(data)
+	assert.Nil(err, "MapNode Deserialization failed")
+	assert.Equal(mapNode, newMapNode, "MapNode Deserialization failed")
 }

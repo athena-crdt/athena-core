@@ -28,15 +28,27 @@ func TestSetValue(t *testing.T) {
 	reg.SetValue(updatedValue)
 
 	// assert
-	assert.Equal(reg.Value(), updatedValue)
+	assert.Equal(reg.GetValue(), updatedValue)
 }
 
 func TestChild(t *testing.T) {
 	assert := assert.New(t)
 	reg := NewRegisterNode("test", 1)
 
-	assert.Nil(reg.Children())
+	assert.Nil(reg.GetChildren())
 
 	path := []NodeId{NodeId("bruh"), NodeId("bruh2")}
 	assert.Nil(reg.FetchChild(path))
+}
+
+func TestRegisterNode_Serialize_Deserialize(t *testing.T) {
+	assert := assert.New(t)
+	reg := NewRegisterNode("test", 1)
+
+	data, err := reg.Serialize()
+	assert.Nil(err, "RegisterNode Serialization failed")
+	newReg := &RegisterNode{}
+	err = newReg.Deserialize(data)
+	assert.Nil(err, "RegisterNode Deserialization failed")
+	assert.Equal(reg, newReg, "RegisterNode Deserialization failed")
 }

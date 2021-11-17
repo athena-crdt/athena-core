@@ -29,13 +29,13 @@ func init() {
 // todo: integrate with lamport counters
 type (
 	// NodeId is of type string.
-	NodeId   string
-	Children map[NodeId]Node
+	NodeId     string
+	ChildNodes map[NodeId]Node
 
 	// Node interface represents the overall primary operations of an JSON node.
 	Node interface {
-		// Id returns current Node id.
-		Id() NodeId
+		// GetId returns current Node id.
+		GetId() NodeId
 		// SetId sets the node with the given id.
 		SetId(NodeId) error
 
@@ -49,27 +49,27 @@ type (
 		Serialize() ([]byte, error)
 		Deserialize([]byte) error
 
-		// DeepClone performs a deepcopy and returns a copied subtree.
+		// DeepClone performs a deep copy and returns a copied subtree.
 		DeepClone() (Node, error)
 		// Clone copies just the node and not the subtree.
 		Clone() (Node, error)
 
 		// FetchChild returns the children node reachable through the given set of ids as path.
-		// travserse the json tree in using []NodeId as a path
+		// traverse the json tree in using []NodeId as a path
 		FetchChild([]NodeId) (Node, error)
 
-		// Child returns the children map of current node.
-		Children() Children
+		// GetChildren returns the children map of current node.
+		GetChildren() ChildNodes
 
-		// Get returns child with Id if present and not marked as tombstone
-		Child(NodeId) (Node, error)
+		// GetChild returns child with Id if present and not marked as tombstone
+		GetChild(NodeId) (Node, error)
 
 		// Assign assigns argument node as a child of the current node.
 		Assign(Node, bool) error
 
-		// ListIndex is only valid if node is a child of a ListNode
+		// GetListIndex is only valid if node is a child of a ListNode
 		// Get listIndex for node
-		ListIndex() int
+		GetListIndex() int
 		// SetListIndex sets the index value for the node
 		SetListIndex(int) error
 
@@ -77,87 +77,87 @@ type (
 		Delete(NodeId) error
 	}
 
-	// baseNode is a generic type that gets embedded into different Types struct.
-	baseNode struct {
-		id        NodeId
-		tombstone bool
-		children  Children
-		listIndex int
+	// BaseNode is a generic type that gets embedded into different Types struct.
+	BaseNode struct {
+		Id        NodeId
+		Tombstone bool
+		Children  ChildNodes
+		ListIndex int
 	}
 )
 
 // newBaseNode is an non-exported function and meant for internal usage only.
-func newBaseNode(id NodeId) *baseNode {
-	return &baseNode{
-		id:        id,
-		tombstone: false,
-		children:  make(Children),
-		listIndex: -1,
+func newBaseNode(id NodeId) *BaseNode {
+	return &BaseNode{
+		Id:        id,
+		Tombstone: false,
+		Children:  make(ChildNodes),
+		ListIndex: -1,
 	}
 }
 
-func (b *baseNode) Id() NodeId {
-	return b.id
+func (b *BaseNode) GetId() NodeId {
+	return b.Id
 }
 
-func (b *baseNode) SetId(id NodeId) error {
-	if b.id != "" {
-		return errors.Errorf("id %v is already set for node", b.id)
+func (b *BaseNode) SetId(id NodeId) error {
+	if b.Id != "" {
+		return errors.Errorf("id %v is already set for node", b.Id)
 	}
-	b.id = id
+	b.Id = id
 	return nil
 }
 
-func (b *baseNode) IsTombStone() bool {
-	return b.tombstone
+func (b *BaseNode) IsTombStone() bool {
+	return b.Tombstone
 }
 
-func (b *baseNode) MarkTombstone() error {
-	if b.tombstone {
-		return errors.Errorf("node with id %v is already marked tombstone", b.id)
+func (b *BaseNode) MarkTombstone() error {
+	if b.Tombstone {
+		return errors.Errorf("node with id %v is already marked tombstone", b.Id)
 	}
-	b.tombstone = true
+	b.Tombstone = true
 	return nil
 }
 
-func (b *baseNode) ListIndex() int {
-	return b.listIndex
+func (b *BaseNode) GetListIndex() int {
+	return b.ListIndex
 }
 
-func (b *baseNode) SetListIndex(idx int) error {
-	b.listIndex = idx
+func (b *BaseNode) SetListIndex(idx int) error {
+	b.ListIndex = idx
 	return nil
 }
 
-func (b *baseNode) Assign(node Node, override bool) error {
-	if _, ok := b.children[node.Id()]; ok && !override {
+func (b *BaseNode) Assign(node Node, override bool) error {
+	if _, ok := b.Children[node.GetId()]; ok && !override {
 		return errors.New("failed to assign child to the given node, node exists with the same id")
 	}
-	b.children[node.Id()] = node
+	b.Children[node.GetId()] = node
 
 	return nil
 }
 
-func (b *baseNode) Children() Children {
-	return b.children
+func (b *BaseNode) GetChildren() ChildNodes {
+	return b.Children
 }
 
-func (b *baseNode) Child(id NodeId) (Node, error) {
-	elem, ok := b.children[id]
+func (b *BaseNode) GetChild(id NodeId) (Node, error) {
+	elem, ok := b.Children[id]
 	if ok && !elem.IsTombStone() {
 		return elem, nil
 	}
-	return nil, errors.Errorf("child with id %v doesn't exist for node %v", id, b.id)
+	return nil, errors.Errorf("child with id %v doesn't exist for node %v", id, b.Id)
 }
 
-func (b *baseNode) FetchChild(idList []NodeId) (Node, error) {
+func (b *BaseNode) FetchChild(idList []NodeId) (Node, error) {
 	var node Node
-	children := b.children
+	children := b.Children
 
 	for i, id := range idList {
 		c, ok := children[id]
 		if !ok {
-			return nil, errors.Errorf("invalid id set, child of id %v doesn't exists for node of id %v", id, b.id)
+			return nil, errors.Errorf("invalid id set, child of id %v doesn't exists for node of id %v", id, b.Id)
 		}
 
 		if c.IsTombStone() {
@@ -167,12 +167,12 @@ func (b *baseNode) FetchChild(idList []NodeId) (Node, error) {
 		switch c.(type) {
 		case *RegisterNode:
 			if i != len(idList)-1 {
-				return nil, errors.Errorf("expected empty id[] when a RegisterNode of id %v is reached", c.Id())
+				return nil, errors.Errorf("expected empty id[] when a RegisterNode of id %v is reached", c.GetId())
 			}
 		default:
 		}
 		node = c
-		children = c.Children()
+		children = c.GetChildren()
 	}
 	return node, nil
 }

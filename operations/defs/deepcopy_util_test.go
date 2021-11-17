@@ -30,9 +30,9 @@ func TestDeepCopy(t *testing.T) {
 	cloneTree, err := deepCopy(tree, true)
 
 	assert.Nil(err)
-	assert.Equal(cloneTree.Id(), NodeId("abc"))
+	assert.Equal(cloneTree.GetId(), NodeId("abc"))
 
-	ch, ok := cloneTree.Children()["def"]
+	ch, ok := cloneTree.GetChildren()["def"]
 	assert.True(ok)
 
 	// Updating subtree
@@ -41,8 +41,8 @@ func TestDeepCopy(t *testing.T) {
 	regC.SetValue(9)
 
 	// Should not interfere with original tree
-	originalRegC := tree.Children()["def"].(*RegisterNode)
-	assert.Equal(originalRegC.Value(), oldValue)
+	originalRegC := tree.GetChildren()["def"].(*RegisterNode)
+	assert.Equal(originalRegC.GetValue(), oldValue)
 }
 
 func TestShallowCopy(t *testing.T) {
@@ -55,9 +55,9 @@ func TestShallowCopy(t *testing.T) {
 	cloneTree, err := deepCopy(tree, false)
 
 	assert.Nil(err)
-	assert.Equal(cloneTree.Id(), NodeId("abc"))
+	assert.Equal(cloneTree.GetId(), NodeId("abc"))
 
-	ch, ok := cloneTree.Children()["def"]
+	ch, ok := cloneTree.GetChildren()["def"]
 	assert.True(ok)
 
 	// Updating subtree
@@ -67,6 +67,6 @@ func TestShallowCopy(t *testing.T) {
 	regC.SetValue(newValue)
 
 	// original reg should be updated
-	originalRegC := tree.Children()["def"].(*RegisterNode)
-	assert.Equal(originalRegC.Value(), newValue)
+	originalRegC := tree.GetChildren()["def"].(*RegisterNode)
+	assert.Equal(originalRegC.GetValue(), newValue)
 }

@@ -15,86 +15,87 @@
 package defs
 
 import (
+	serializer2 "github.com/athena-crdt/athena-core/operations/serializer"
 	"github.com/pkg/errors"
 )
 
 type ListNode struct {
-	*baseNode
+	*BaseNode
 }
 
 // NewListNode returns a Node of type ListNode.
 func NewListNode(id NodeId) *ListNode {
 	return &ListNode{
-		baseNode: newBaseNode(id),
+		BaseNode: newBaseNode(id),
 	}
 }
 
 func (l *ListNode) Assign(child Node, _ bool) error {
-	if elm, ok := l.Children()[child.Id()]; !ok {
-		return errors.Errorf("invalid id assignment, child of id %v doesn't exists for listNode of id %v", child.Id(), l.id)
-	} else if elm.ListIndex() != child.ListIndex() {
-		return errors.Errorf("invalid id assignment, child of id %v  has invalid index for listNode of id %v", child.Id(), l.id)
+	if elm, ok := l.GetChildren()[child.GetId()]; !ok {
+		return errors.Errorf("invalid id assignment, child of id %v doesn't exists for listNode of id %v", child.GetId(), l.Id)
+	} else if elm.GetListIndex() != child.GetListIndex() {
+		return errors.Errorf("invalid id assignment, child of id %v  has invalid index for listNode of id %v", child.GetId(), l.Id)
 	} else if elm.IsTombStone() {
-		return errors.Errorf("invalid id assignment, child of id %v is marked as tombstone id %v", child.Id(), l.id)
+		return errors.Errorf("invalid id assignment, child of id %v is marked as tombstone id %v", child.GetId(), l.Id)
 	}
-	return l.baseNode.Assign(child, true)
+	return l.BaseNode.Assign(child, true)
 }
 
 func (l *ListNode) InsertAtHead(child Node) error {
 	// child.id already present
-	_, present := l.Children()[child.Id()]
+	_, present := l.GetChildren()[child.GetId()]
 	if present {
-		return errors.Errorf("invalid head insertion, child of id %v already exists for listNode of id %v", child.Id(), l.id)
+		return errors.Errorf("invalid head insertion, child of id %v already exists for listNode of id %v", child.GetId(), l.Id)
 	}
 
 	// child should have listIndex as 0
 	child.SetListIndex(0)
 
 	// increment all other existing elems
-	for id := range l.Children() {
-		l.Children()[id].SetListIndex(l.Children()[id].ListIndex() + 1)
+	for id := range l.GetChildren() {
+		l.GetChildren()[id].SetListIndex(l.GetChildren()[id].GetListIndex() + 1)
 	}
 
-	l.Children()[child.Id()] = child
+	l.GetChildren()[child.GetId()] = child
 	return nil
 }
 
 func (l *ListNode) InsertAfter(id NodeId, child Node) error {
 	// child.id already present
-	_, present := l.Children()[child.Id()]
+	_, present := l.GetChildren()[child.GetId()]
 	if present {
-		return errors.Errorf("invalid list insertion, child of id %v already exists for listNode of id %v", child.Id(), l.id)
+		return errors.Errorf("invalid list insertion, child of id %v already exists for listNode of id %v", child.GetId(), l.Id)
 	}
 
-	markedElem, ok := l.Children()[id]
+	markedElem, ok := l.GetChildren()[id]
 	if !ok {
-		return errors.Errorf("invalid list insertion, child of id %v doesn't exists for listNode of id %v", id, l.id)
+		return errors.Errorf("invalid list insertion, child of id %v doesn't exists for listNode of id %v", id, l.Id)
 	}
 
 	// increment listIndex for all later elements
-	for id := range l.Children() {
-		if l.Children()[id].ListIndex() > markedElem.ListIndex() {
-			l.Children()[id].SetListIndex(l.Children()[id].ListIndex() + 1)
+	for id := range l.GetChildren() {
+		if l.GetChildren()[id].GetListIndex() > markedElem.GetListIndex() {
+			l.GetChildren()[id].SetListIndex(l.GetChildren()[id].GetListIndex() + 1)
 		}
 	}
-	child.SetListIndex(markedElem.ListIndex() + 1)
-	l.Children()[child.Id()] = child
+	child.SetListIndex(markedElem.GetListIndex() + 1)
+	l.GetChildren()[child.GetId()] = child
 	return nil
 }
 
 func (l *ListNode) Delete(id NodeId) error {
-	child, present := l.Children()[id]
+	child, present := l.GetChildren()[id]
 	if present && !child.IsTombStone() {
 		child.MarkTombstone()
 		// decrement index of elems
-		for id := range l.Children() {
-			if l.Children()[id].ListIndex() > child.ListIndex() {
-				l.Children()[id].SetListIndex(l.Children()[id].ListIndex() - 1)
+		for id := range l.GetChildren() {
+			if l.GetChildren()[id].GetListIndex() > child.GetListIndex() {
+				l.GetChildren()[id].SetListIndex(l.GetChildren()[id].GetListIndex() - 1)
 			}
 		}
 		return nil
 	}
-	return errors.Errorf("Cannot delete id %v from listNode of id %v", id, l.Id())
+	return errors.Errorf("Cannot delete id %v from listNode of id %v", id, l.GetId())
 }
 
 func (l *ListNode) DeepClone() (Node, error) {
@@ -106,9 +107,12 @@ func (l *ListNode) Clone() (Node, error) {
 }
 
 func (l *ListNode) Serialize() ([]byte, error) {
-	panic("implement me")
+	serializer := serializer2.GobSerializer{}
+	return serializer.Serialize(l)
 }
 
 func (l *ListNode) Deserialize(bytes []byte) error {
-	panic("implement me")
+	deserializer := serializer2.GobSerializer{}
+	err := deserializer.Deserialize(bytes, l)
+	return err
 }
